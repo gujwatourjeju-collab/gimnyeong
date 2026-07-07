@@ -3,32 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>해녀마을 김녕리 마을지도 & 스탬프 투어</title>
+    <title>해녀마을 김녕리 골목상권 디지털 지도</title>
     <style>
         :root {
             --primary-color: #01b2ad;
+            --primary-light: #e6f7f6;
+            --text-dark: #1a1f1e;
+            --text-gray: #656e6d;
+            --bg-light: #f8faf9;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
         }
+        
         body {
-            font-family: 'Pretendard', -apple-system, sans-serif;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f7f6;
+            background-color: #f1f5f4;
+            color: var(--text-dark);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
+
         .app-container {
             width: 100%;
-            max-width: 1100px;
-            padding: 20px;
+            max-width: 1000px;
+            padding: 24px 16px;
             box-sizing: border-box;
             text-align: center;
         }
-        h1 { font-size: 24px; color: #222; margin-bottom: 5px; }
-        .desc { font-size: 14px; color: #666; margin-bottom: 20px; }
 
-        /* 비율 고정 프레임 */
+        /* 헤더 디자인 개선 */
+        header {
+            margin-bottom: 24px;
+        }
+        h1 { 
+            font-size: 26px; 
+            font-weight: 800;
+            color: var(--text-dark); 
+            margin: 0 0 8px 0; 
+            letter-spacing: -0.5px;
+        }
+        .desc { 
+            font-size: 14px; 
+            color: var(--text-gray); 
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* 지도 프레임 레이아웃 */
         .map-frame {
             position: relative;
             width: 100%;
@@ -36,12 +64,13 @@
             background-image: url('map-bg.png');
             background-size: 100% 100%;
             background-repeat: no-repeat;
-            border-radius: 16px;
-            box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
             overflow: hidden;
+            background-color: #fff;
         }
 
-        /* 완전 투명하게 처리된 터치 영역 */
+        /* 완전히 투명한 터치 영역 */
         .spot-trigger {
             position: absolute;
             width: 4.5%;
@@ -55,7 +84,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 하단 감귤 스탬프 안착 레이어 */
+        /* 감귤 스탬프 안착 레이어 */
         .stamp-layer {
             position: absolute;
             width: 7.5%;
@@ -64,10 +93,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: 34px;
             pointer-events: none;
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
             z-index: 20;
         }
         .stamp-layer.active {
@@ -75,92 +105,180 @@
             transform: translate(-50%, -50%) scale(1) rotate(-12deg);
         }
 
-        /* 상세 정보 모달 구조 */
-        .modal {
-            position: absolute;
-            top: 45%; left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            background: white; padding: 24px; border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3); width: 320px;
-            display: none; z-index: 100; opacity: 0; transition: all 0.3s;
-            text-align: left;
-            box-sizing: border-box;
+        /* 모달 전체 화면 덮는 흐린 배경 (모바일 이슈 해결의 핵심) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 100;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            justify-content: center;
+            align-items: center;
         }
-        .modal.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        .modal h3 { margin: 0 0 5px 0; font-size: 20px; color: #111; border-bottom: 2px solid var(--primary-color); padding-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .modal-meta { font-size: 12px; color: var(--primary-color); font-weight: bold; margin-bottom: 12px; }
-        .modal p { margin: 0 0 15px 0; font-size: 14px; color: #444; line-height: 1.5; white-space: pre-line; }
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* 정보창(모달) 반응형 UI 스타일링 */
+        .modal {
+            background: white; 
+            padding: 28px; 
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg); 
+            width: 100%;
+            max-width: 380px;
+            box-sizing: border-box;
+            text-align: left;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.show .modal {
+            transform: translateY(0);
+        }
+
+        .modal h3 { 
+            margin: 0 0 6px 0; 
+            font-size: 22px; 
+            font-weight: 700;
+            color: var(--text-dark); 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+        .modal-meta { 
+            font-size: 13px; 
+            color: var(--primary-color); 
+            font-weight: 600; 
+            background-color: var(--primary-light);
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 30px;
+            margin-bottom: 16px; 
+        }
+        .modal p { 
+            margin: 0 0 20px 0; 
+            font-size: 14px; 
+            color: var(--text-gray); 
+            line-height: 1.6; 
+            white-space: pre-line; 
+        }
         
-        /* 주소 및 연락처 정보 스타일 */
+        /* 주소 및 연락처 정보 박스 */
         .modal-info-box {
-            background-color: #f8faf9;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            background-color: var(--bg-light);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
             font-size: 13px;
-            color: #555;
-            line-height: 1.6;
+            color: #4a5251;
+            border: 1px solid #eef2f1;
         }
         .modal-info-box div {
             display: flex;
-            align-items: center;
-            margin-bottom: 6px;
+            align-items: flex-start;
+            margin-bottom: 10px;
         }
         .modal-info-box div:last-child { margin-bottom: 0; }
         .modal-info-box span.label {
-            font-weight: bold;
-            color: #333;
+            font-weight: 700;
+            color: var(--text-dark);
             width: 50px;
             flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .modal-info-box span.val {
+            line-height: 1.4;
         }
         
-        /* 전화 걸기 버튼 스타일 */
+        /* 전화 걸기 버튼 */
         .phone-link {
             display: inline-flex;
             align-items: center;
             color: var(--primary-color);
             text-decoration: none;
-            font-weight: bold;
-            border: 1px solid var(--primary-color);
-            padding: 2px 8px;
-            border-radius: 4px;
+            font-weight: 600;
+            background: #fff;
+            border: 1px solid #dceffd;
+            padding: 3px 8px;
+            border-radius: 6px;
             font-size: 11px;
             margin-left: auto;
+            box-shadow: var(--shadow-sm);
             transition: all 0.2s;
         }
         .phone-link:hover {
             background-color: var(--primary-color);
             color: white;
+            border-color: var(--primary-color);
         }
 
-        .modal-buttons { display: flex; gap: 8px; }
+        /* 하단 버튼 구조 */
+        .modal-buttons { display: flex; gap: 10px; }
         .modal-btn {
             background: var(--primary-color); color: white; border: none;
-            padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center;
+            padding: 14px; width: 65%; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; text-align: center;
+            font-size: 14px; box-shadow: 0 4px 12px rgba(1, 178, 173, 0.2); transition: background 0.2s;
         }
+        .modal-btn:hover { background: #009d99; }
         .modal-close-btn {
-            background: #eee; color: #444; border: none;
-            padding: 12px; width: 35%; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center;
+            background: #f0f3f2; color: var(--text-gray); border: none;
+            padding: 14px; width: 35%; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; text-align: center;
+            font-size: 14px; transition: background 0.2s;
         }
+        .modal-close-btn:hover { background: #e2e7e6; }
+
+        /* 초기화 버튼 세련되게 변경 */
         .reset-btn {
-            margin-top: 20px; padding: 10px 20px; background: #fff; border: 1px solid #ccc;
-            border-radius: 6px; cursor: pointer; font-weight: bold; color: #555;
+            margin-top: 24px; padding: 12px 24px; background: #fff; border: 1px solid #e2e7e6;
+            border-radius: 30px; cursor: pointer; font-weight: 600; color: var(--text-gray); font-size: 13px;
+            box-shadow: var(--shadow-sm); transition: all 0.2s;
+        }
+        .reset-btn:hover { background: #fafafa; color: var(--text-dark); border-color: #ccd4d3; }
+
+        /* 모바일 세로 화면을 위한 미디어 쿼리 (바텀 시트 전환 기술) */
+        @media (max-width: 540px) {
+            .modal-overlay {
+                align-items: flex-end; /* 아래 정렬 */
+            }
+            .modal {
+                max-width: 100%;
+                border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* 위쪽만 라운딩 */
+                transform: translateY(100%); /* 아래서 위로 올라오는 효과 */
+                padding: 32px 20px 24px 20px;
+            }
+            /* 상단 바텀시트 핸들러 표시 */
+            .modal::before {
+                content: '';
+                position: absolute;
+                top: 12px; left: 50%;
+                transform: translateX(-50%);
+                width: 40px; height: 5px;
+                background-color: #e2e7e6;
+                border-radius: 3px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <h1>🗺️ 해녀마을 김녕리 디지털 지도</h1>
-    <div class="desc">지도 위 매장 아이콘 위치를 터치하면 상세 점포 정보 확인 및 감귤 도장을 획득할 수 있습니다.</div>
+    <header>
+        <h1>🗺️ 해녀마을 김녕리 골목상권 디지털 지도</h1>
+        <div class="desc">지도 위 아이콘을 터치하면 상세 정보 확인 및 감귤 도장을 획득할 수 있습니다.</div>
+    </header>
 
     <div class="map-frame">
-        
         <div class="spot-trigger" style="left: 12.5%; top: 47.8%;" onclick="openAuth('청춘당꽈배기')"></div>
         <div class="spot-trigger" style="left: 18.9%; top: 50.5%;" onclick="openAuth('기억제주맛집')"></div>
         <div class="spot-trigger" style="left: 23.9%; top: 45.9%;" onclick="openAuth('김녕빵집')"></div>
         <div class="spot-trigger" style="left: 23.6%; top: 54.8%;" onclick="openAuth('김녕에사는김영훈')"></div>
-        <div class="spot-trigger" style="left: 29.7%; top: 41.1%;" onclick="openAuth('김녕옥상회')"></div> <div class="spot-trigger" style="left: 29.2%; top: 48.7%;" onclick="openAuth('제프버거')"></div>
+        <div class="spot-trigger" style="left: 29.7%; top: 41.1%;" onclick="openAuth('김녕옥상회')"></div>
+        <div class="spot-trigger" style="left: 29.2%; top: 48.7%;" onclick="openAuth('제프버거')"></div>
         <div class="spot-trigger" style="left: 29.0%; top: 56.4%;" onclick="openAuth('본초불닭발')"></div>
         <div class="spot-trigger" style="left: 29.2%; top: 65.5%;" onclick="openAuth('스페샬펜션')"></div>
         <div class="spot-trigger" style="left: 33.6%; top: 56.5%;" onclick="openAuth('매코롬')"></div>
@@ -188,169 +306,63 @@
         <div class="stamp-layer" id="stamp2" style="left: 43.2%; top: 84.1%;">🍊</div>
         <div class="stamp-layer" id="stamp3" style="left: 57.4%; top: 83.9%;">🍊</div>
         <div class="stamp-layer" id="stamp4" style="left: 71.6%; top: 83.7%;">🍊</div>
-
-        <div class="modal" id="authModal">
-            <h3 id="modalTitle">매장 이름</h3>
-            <div class="modal-meta" id="modalCategory">분류 정보</div>
-            <p id="modalDesc">매장 상세 설명이 여기에 들어갑니다.</p>
-            
-            <div class="modal-info-box">
-                <div><span class="label">📍 주소:</span><span id="modalAddress">제주도 제주시...</span></div>
-                <div>
-                    <span class="label">📞 전화:</span>
-                    <span id="modalPhone">064-...</span>
-                    <a href="#" id="modalPhoneBtn" class="phone-link">전화걸기</a>
-                </div>
-            </div>
-
-            <div class="modal-buttons">
-                <button class="modal-close-btn" onclick="closeModal()">닫기</button>
-                <button class="modal-btn" onclick="collectStamp()">방문 도장 찍기</button>
-            </div>
-        </div>
     </div>
 
-    <button class="reset-btn" onclick="resetTour()">스탬프 초기화</button>
+    <button class="reset-btn" onclick="resetTour()">🔄 투어 기록 초기화</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+    <div class="modal" id="authModal">
+        <h3 id="modalTitle">매장 이름</h3>
+        <div class="modal-meta" id="modalCategory">분류 정보</div>
+        <p id="modalDesc">매장 상세 설명이 여기에 들어갑니다.</p>
+        
+        <div class="modal-info-box">
+            <div><span class="label">📍 주소</span><span id="modalAddress" class="val">제주도 제주시...</span></div>
+            <div>
+                <span class="label">📞 전화</span>
+                <span id="modalPhone" class="val">064-...</span>
+                <a href="#" id="modalPhoneBtn" class="phone-link">전화걸기</a>
+            </div>
+        </div>
+
+        <div class="modal-buttons">
+            <button class="modal-close-btn" onclick="closeModal()">닫기</button>
+            <button class="modal-btn" onclick="collectStamp()">방문 도장 찍기</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    // 김녕 로컬 점포 정보 데이터베이스 (김녕옥상회 변경 완료)
+    // 로컬 점포 데이터 딕셔너리
     const storeData = {
-        '청춘당꽈배기': { 
-            cat: '디저트 / 베이커리', 
-            desc: '갓 튀겨내어 겉은 바삭하고 속은 쫄깃한 명품 찹쌀 꽈배기 전문점입니다. 가벼운 간식으로 최고!',
-            addr: '제주시 구좌읍 김녕로 149', tel: '064-782-4588'
-        },
-        '기억제주맛집': { 
-            cat: '로컬 한식당', 
-            desc: '제주산 싱싱한 전복และ 갈치조림 등 깊은 손맛의 향토 음식을 맛볼 수 있는 든든한 로컬 맛집입니다.',
-            addr: '제주시 구좌읍 김녕로21길 11', tel: '064-724-0408'
-        },
-        '김녕빵집': { 
-            cat: '베이커리 카페', 
-            desc: '담백한 소금빵과 고소한 패스츄리로 SNS에서 입소문 난 김녕의 대표 필수 방문 빵지순례 코스입니다.',
-            addr: '제주시 구좌읍 김녕로 136-1', tel: '010-6318-0218'
-        },
-        '김녕에사는김영훈': { 
-            cat: '감성 카페', 
-            desc: '김녕 바다 감성을 품은 아늑하고 조용한 공간에서 정성스레 내린 커피와 시그니처 음료를 즐길 수 있습니다.',
-            addr: '제주시 구좌읍 김녕로6길 2 1층', tel: '010-6302-1938'
-        },
-        '김녕옥상회': {  // 목상회 -> 옥상회 수정
-            cat: '로컬 잡화 / 소품샵', 
-            desc: '제주의 옛 구옥 정취를 살린 공간에서 아기자기한 핸드메이드 소품과 유니크한 기념품들을 큐레이션합니다.',
-            addr: '제주시 구좌읍 김녕로11길 9-1', tel: '010-9114-1188'
-        },
-        '제프버거': { 
-            cat: '수제버거 전문점', 
-            desc: '두툼하고 육즙 가득한 수제 패티와 특제 소스, 신선한 야채가 어우러진 비주얼 끝판왕 수제버거 맛집입니다.',
-            addr: '제주시 구좌읍 김녕로13길 13', tel: '064-783-1188'
-        },
-        '본초불닭발': { 
-            cat: '야식 / 포차', 
-            desc: '화끈한 불향과 중독성 있는 매운맛으로 김녕의 밤을 책임지는 로컬 단골 닭발 및 야식 전문점입니다.',
-            addr: '제주시 구좌읍 김녕로 80', tel: '064-784-3009'
-        },
-        '스페샬펜션': { 
-            cat: '숙박 시설', 
-            desc: '창문 너머로 푸른 김녕 바다와 시원한 파도 소리가 들려오는 편안하고 쾌적한 마을 스테이 공간입니다.',
-            addr: '제주시 구좌읍 김녕로 72-1', tel: '064-782-3532'
-        },
-        '매코롬': { 
-            cat: '로컬 한식 / 분식', 
-            desc: '이름처럼 입맛 돋우는 매콤달콤한 양념 요리와 정갈한 밑반찬이 매력적인 친근한 동네 식당입니다.',
-            addr: '제주시 구좌읍 김녕로 85', tel: '064-784-0708'
-        },
-        '김녕챗': { 
-            cat: '커뮤니티 / 복합 공간', 
-            desc: '마을 주민들과 여행객들이 한데 모여 따뜻한 대화를 나누고 로컬 정보를 공유하는 오픈 소통 공간입니다.',
-            addr: '제주시 구좌읍 김녕로11길 23', tel: '0507-1335-5126'
-        },
-        '김녕서랍': { 
-            cat: '감성 소품샵', 
-            desc: '나만 알고 싶은 작은 서랍처럼 제주의 푸른 바다와 자연을 닮은 아기자기한 라이프스타일 굿즈들이 가득합니다.',
-            addr: '제주시 구좌읍 김녕로17길 18', tel: '010-4411-4017'
-        },
-        '김녕소품샵': { 
-            cat: '기념품 전문점', 
-            desc: '해녀 일러스트 굿즈부터 제주 특산품을 활용한 가벼운 선물용 아이템까지 다양하게 모아놓은 종합 편집숍입니다.',
-            addr: '제주시 구좌읍 김녕로21길 2', tel: ''
-        },
-        '한라식당': { 
-            cat: '제주 향토음식', 
-            desc: '현지인들이 강력 추천하는 우럭정식과 갈치조림 전문점으로, 깊고 진한 로컬 양념 맛이 일품입니다.',
-            addr: '제주시 구좌읍 김녕로 116', tel: '064-782-5123'
-        },
-        '영월갈비': { 
-            cat: '육류 구이전문', 
-            desc: '품질 좋은 고기를 비법 양념에 재워 남녀노소 호불호 없이 즐길 수 있는 김녕리 전통의 갈비 맛집입니다.',
-            addr: '제주시 구좌읍 김녕로 115', tel: '064-782-3118'
-        },
-        '청굴식당': { 
-            cat: '해산물 요리', 
-            desc: '김녕 청굴물 인근의 신선함을 담아 싱싱한 계절 해산물과 물회, 성게국 등을 바다 향 가득하게 대접합니다.',
-            addr: '제주시 구좌읍 김녕로 125', tel: '064-782-5509'
-        },
-        '인수네': { 
-            cat: '인수네 정육식당', 
-            desc: '신선하고 두툼한 제주산 돼지고기와 한우를 정육점 가격으로 가성비 좋게 구워 먹을 수 있는 고깃집입니다.',
-            addr: '제주시 구좌읍 김녕로 106-1', tel: '064-784-2988'
-        },
-        '신미식당': { 
-            cat: '동네 밥집 / 한식', 
-            desc: '어머니가 차려주신 듯 정성 가득하고 정갈한 백반 정식과 찌개류로 동네 주민들의 사랑을 받는 식당입니다.',
-            addr: '제주시 구좌읍 김녕로 99', tel: '064-782-5066'
-        },
-        '으뜸원': { 
-            cat: '으뜸원 마늘갈비', 
-            desc: '알싸하고 달콤한 제주 마늘 양념을 듬뿍 얹어 풍미를 극대화한 독보적인 풍미의 갈비 구이 전문점입니다.',
-            addr: '제주시 구좌읍 김녕로 100', tel: '064-782-9592'
-        },
-        'BHC': { 
-            cat: '치킨 전문점', 
-            desc: '바삭한 뿌링클과 맛초킹 등 여행의 밤을 시원한 맥주와 함께 달래줄 믿고 먹는 친숙한 치킨 브랜드입니다.',
-            addr: '제주시 구좌읍 김녕로 94', tel: '064-784-9989'
-        },
-        '파란소리': { 
-            cat: '파란소리 음악학원', 
-            desc: '김녕리 아이들의 맑은 피아노 소리와 예술적 감성이 자라나는 따뜻하고 친근한 동네 음악 공간입니다.',
-            addr: '제주시 구좌읍 김녕로 96', tel: '064-782-0125'
-        },
-        '씨유': { 
-            cat: 'CU 김녕리점', 
-            desc: '올레길 투어나 마을 산책 중 필요한 간식과 편의 물품을 24시간 언제든 채울 수 있는 고마운 편의점입니다.',
-            addr: '제주시 구좌읍 김녕로 68', tel: '064-784-8845'
-        },
-        '킹마트': { 
-            cat: '중형 마트', 
-            desc: '신선한 청과류부터 생필품까지 마을에서 가장 다양한 물건을 합리적으로 구비해 둔 김녕리의 중심 마트입니다.',
-            addr: '제주시 구좌읍 김녕로 91', tel: '064-782-8289'
-        },
-        '더벤티': { 
-            cat: '프랜차이즈 카페', 
-            desc: '합리적인 가격에 압도적인 대용량 커피와 달콤한 음료들을 빠르게 테이크아웃할 수 있는 접근성 좋은 카페입니다.',
-            addr: '제주시 구좌읍 김녕로 87', tel: '064-783-3331'
-        },
-        '김녕홀리다': { 
-            cat: '퓨전 다이닝 카페', 
-            desc: '김녕의 아름다운 풍경에 홀리듯 머물며 트렌디한 브런치와 이색 음료를 즐길 수 있는 감성 플레이스입니다.',
-            addr: '제주시 구좌읍 김녕로 93', tel: '0507-1339-4475'
-        },
-        '대복해장국': { 
-            cat: '해장국 / 국밥', 
-            desc: '이른 아침부터 뼈속까지 시원하고 칼칼한 육수로 속을 풀어주는 전형적인 로컬 해장 1번지 국밥집입니다.',
-            addr: '제주시 구좌읍 김녕로 109', tel: '064-782-3588'
-        },
-        '모산봉': { 
-            cat: '중국음식 / 식당', 
-            desc: '김녕리 마을의 오랜 정취를 담아 깔끔하고 푸짐한 중화요리를 대접하는 정겨운 로컬 식당입니다.',
-            addr: '제주시 구좌읍 김녕로 117', tel: '064-782-2544'
-        },
-        '김녕나루터': { 
-            cat: '숯불구이 / 식당', 
-            desc: '각종 숯불 구이 고기를 안주 삼아 바다 정취를 낭만적으로 즐기는 곳입니다.',
-            addr: '제주시 구좌읍 김녕항해안길 150', tel: '064-784-9005'
-        }
+        '청춘당꽈배기': { cat: '디저트 / 베이커리', desc: '갓 튀겨내어 겉은 바삭하고 속은 쫄깃한 명품 찹쌀 꽈배기 전문점입니다. 가벼운 간식으로 최고!', addr: '제주시 구좌읍 김녕로 149', tel: '064-782-4588' },
+        '기억제주맛집': { cat: '로컬 한식당', desc: '제주산 싱싱한 전복과 갈치조림 등 깊은 손맛의 향토 음식을 맛볼 수 있는 든든한 로컬 맛집입니다.', addr: '제주시 구좌읍 김녕로21길 11', tel: '064-724-0408' },
+        '김녕빵집': { cat: '베이커리 카페', desc: '담백한 소금빵과 고소한 패스츄리로 SNS에서 입소문 난 김녕의 대표 필수 방문 빵지순례 코스입니다.', addr: '제주시 구좌읍 김녕로 136-1', tel: '010-6318-0218' },
+        '김녕에사는김영훈': { cat: '감성 카페', desc: '김녕 바다 감성을 품은 아늑하고 조용한 공간에서 정성스레 내린 커피와 시그니처 음료를 즐길 수 있습니다.', addr: '제주시 구좌읍 김녕로6길 2 1층', tel: '010-6302-1938' },
+        '김녕옥상회': { cat: '로컬 잡화 / 소품샵', desc: '제주의 옛 구옥 정취를 살린 공간에서 아기자기한 핸드메이드 소품과 유니크한 기념품들을 큐레이션합니다.', addr: '제주시 구좌읍 김녕로11길 9-1', tel: '010-9114-1188' },
+        '제프버거': { cat: '수제버거 전문점', desc: '두툼하고 육즙 가득한 수제 패티와 특제 소스, 신선한 야채가 어우러진 비주얼 끝판왕 수제버거 맛집입니다.', addr: '제주시 구좌읍 김녕로13길 13', tel: '064-783-1188' },
+        '본초불닭발': { cat: '야식 / 포차', desc: '화끈한 불향과 중독성 있는 매운맛으로 김녕의 밤을 책임지는 로컬 단골 닭발 및 야식 전문점입니다.', addr: '제주시 구좌읍 김녕로 80', tel: '064-784-3009' },
+        '스페샬펜션': { cat: '숙박 시설', desc: '창문 너머로 푸른 김녕 바다와 시원한 파도 소리가 들려오는 편안하고 쾌적한 마을 스테이 공간입니다.', addr: '제주시 구좌읍 김녕로 72-1', tel: '064-782-3532' },
+        '매코롬': { cat: '로컬 한식 / 분식', desc: '이름처럼 입맛 돋우는 매콤달콤한 양념 요리와 정갈한 밑반찬이 매력적인 친근한 동네 식당입니다.', addr: '제주시 구좌읍 김녕로 85', tel: '064-784-0708' },
+        '김녕챗': { cat: '커뮤니티 / 복합 공간', desc: '마을 주민들과 여행객들이 한데 모여 따뜻한 대화를 나누고 로컬 정보를 공유하는 오픈 소통 공간입니다.', addr: '제주시 구좌읍 김녕로11길 23', tel: '0507-1335-5126' },
+        '김녕서랍': { cat: '감성 소품샵', desc: '나만 알고 싶은 작은 서랍처럼 제주의 푸른 바다와 자연을 닮은 아기자기한 라이프스타일 굿즈들이 가득합니다.', addr: '제주시 구좌읍 김녕로17길 18', tel: '010-4411-4017' },
+        '김녕소품샵': { cat: '기념품 전문점', desc: '해녀 일러스트 굿즈부터 제주 특산품을 활용한 가벼운 선물용 아이템까지 다양하게 모아놓은 종합 편집숍입니다.', addr: '제주시 구좌읍 김녕로21길 2', tel: '' },
+        '한라식당': { cat: '제주 향토음식', desc: '현지인들이 강력 추천하는 우럭정식과 갈치조림 전문점으로, 깊고 진한 로컬 양념 맛이 일품입니다.', addr: '제주시 구좌읍 김녕로 116', tel: '064-782-5123' },
+        '영월갈비': { cat: '육류 구이전문', desc: '품질 좋은 고기를 비법 양념에 재워 남녀노소 호불호 없이 즐길 수 있는 김녕리 전통의 갈비 맛집입니다.', addr: '제주시 구좌읍 김녕로 115', tel: '064-782-3118' },
+        '청굴식당': { cat: '해산물 요리', desc: '김녕 청굴물 인근의 신선함을 담아 싱싱한 계절 해산물과 물회, 성게국 등을 바다 향 가득하게 대접합니다.', addr: '제주시 구좌읍 김녕로 125', tel: '064-782-5509' },
+        '인수네': { cat: '인수네 정육식당', desc: '신선하고 두툼한 제주산 돼지고기와 한우를 정육점 가격으로 가성비 좋게 구워 먹을 수 있는 고깃집입니다.', addr: '제주시 구좌읍 김녕로 106-1', tel: '064-784-2988' },
+        '신미식당': { cat: '동네 밥집 / 한식', desc: '어머니가 차려주신 듯 정성 가득하고 정갈한 백반 정식과 찌개류로 동네 주민들의 사랑을 받는 식당입니다.', addr: '제주시 구좌읍 김녕로 99', tel: '064-782-5066' },
+        '으뜸원': { cat: '으뜸원 마늘갈비', desc: '알싸하고 달콤한 제주 마늘 양념을 듬뿍 얹어 풍미를 극대화한 독보적인 풍미의 갈비 구이 전문점입니다.', addr: '제주시 구좌읍 김녕로 100', tel: '064-782-9592' },
+        'BHC': { cat: '치킨 전문점', desc: '바삭한 뿌링클과 맛초킹 등 여행의 밤을 시원한 맥주와 함께 달래줄 믿고 먹는 친숙한 치킨 브랜드입니다.', addr: '제주시 구좌읍 김녕로 94', tel: '064-784-9989' },
+        '파란소리': { cat: '파란소리 음악학원', desc: '김녕리 아이들의 맑은 피아노 소리와 예술적 감성이 자라나는 따뜻하고 친근한 동네 음악 공간입니다.', addr: '제주시 구좌읍 김녕로 96', tel: '064-782-0125' },
+        '씨유': { cat: 'CU 김녕리점', desc: '올레길 투어나 마을 산책 중 필요한 간식과 편의 물품을 24시간 언제든 채울 수 있는 고마운 편의점입니다.', addr: '제주시 구좌읍 김녕로 68', tel: '064-784-8845' },
+        '킹마트': { cat: '중형 마트', desc: '신선한 청과류부터 생필품까지 마을에서 가장 다양한 물건을 합리적으로 구비해 둔 김녕리의 중심 마트입니다.', addr: '제주시 구좌읍 김녕로 91', tel: '064-782-8289' },
+        '더벤티': { cat: '프랜차이즈 카페', desc: '합리적인 가격에 압도적인 대용량 커피와 달콤한 음료들을 빠르게 테이크아웃할 수 있는 접근성 좋은 카페입니다.', addr: '제주시 구좌읍 김녕로 87', tel: '064-783-3331' },
+        '김녕홀리다': { cat: '퓨전 다이닝 카페', desc: '김녕의 아름다운 풍경에 홀리듯 머물며 트렌디한 브런치와 이색 음료를 즐길 수 있는 감성 플레이스입니다.', addr: '제주시 구좌읍 김녕로 93', tel: '0507-1339-4475' },
+        '대복해장국': { cat: '해장국 / 국밥', desc: '이른 아침부터 뼈속까지 시원하고 칼칼한 육수로 속을 풀어주는 전형적인 로컬 해장 1번지 국밥집입니다.', addr: '제주시 구좌읍 김녕로 109', tel: '064-782-3588' },
+        '모산봉': { cat: '중국음식 / 식당', desc: '김녕리 마을의 오랜 정취를 담아 깔끔하고 푸짐한 중화요리를 대접하는 정겨운 로컬 식당입니다.', addr: '제주시 구좌읍 김녕로 117', tel: '064-782-2544' },
+        '김녕나루터': { cat: '숯불구이 / 식당', desc: '각종 숯불 구이 고기를 안주 삼아 바다 정취를 낭만적으로 즐기는 곳입니다.', addr: '제주시 구좌읍 김녕항해안길 150', tel: '064-784-9005' }
     };
 
     let currentTargetName = "";
@@ -362,7 +374,7 @@
         const info = storeData[name] || { cat: '매장', desc: '상세 정보 준비 중입니다.', addr: '정보 없음', tel: '' };
         
         document.getElementById('modalTitle').innerText = name;
-        document.getElementById('modalCategory').innerText = `[${info.cat}]`;
+        document.getElementById('modalCategory').innerText = info.cat;
         document.getElementById('modalDesc').innerText = info.desc;
         document.getElementById('modalAddress').innerText = info.addr;
         
@@ -372,15 +384,24 @@
             phoneBtn.setAttribute('href', `tel:${info.tel.replace(/[^0-9]/g, '')}`);
             phoneBtn.style.display = 'inline-flex';
         } else {
-            document.getElementById('modalPhone').innerText = '등록 정보 없음 (방문 문의)';
+            document.getElementById('modalPhone').innerText = '등록 정보 없음';
             phoneBtn.style.display = 'none';
         }
         
-        document.getElementById('authModal').classList.add('show');
+        document.getElementById('modalOverlay').classList.add('show');
+        document.body.style.overflow = 'hidden'; // 정보창 열릴 때 뒷배경 스크롤 방지
     }
 
     function closeModal() {
-        document.getElementById('authModal').classList.remove('show');
+        document.getElementById('modalOverlay').classList.remove('show');
+        document.body.style.overflow = ''; // 스크롤 복구
+    }
+
+    // 모달창 바깥 검은 배경 터치시 닫기 기능
+    function closeModalOnBg(e) {
+        if (e.target.id === 'modalOverlay') {
+            closeModal();
+        }
     }
 
     function collectStamp() {
@@ -399,11 +420,12 @@
         
         closeModal();
         setTimeout(() => {
-            alert(`🍊 [${currentTargetName}] 정보 확인 및 감귤 스탬프 획득 성공!`);
+            alert(`🍊 [${currentTargetName}] 골목상권 스탬프 투어 도장 완료!`);
         }, 300);
     }
 
     function resetTour() {
+        if (!confirm("스탬프 투어 기록을 초기화하시겠습니까?")) return;
         currentStampCount = 0;
         historyList.length = 0;
         for (let i = 0; i < 5; i++) {
