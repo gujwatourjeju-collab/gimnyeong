@@ -14,6 +14,7 @@
         :root {
             --sea: #01b2ad; --sea-dark: #017a76; --sea-light: #e6f7f6;
             --tangerine: #ff8c42; --tangerine-dark: #e06a1f;
+            --brand-navy: #1c2b52;
             --paper: #fbf6ea; --ink: #1b2422; --ink-soft: #667572; --line: #e6ddc8; --bg: #eef3f1;
             --radius-lg: 22px; --radius-md: 12px;
             --shadow-sm: 0 4px 12px rgba(0,0,0,0.05); --shadow-lg: 0 20px 40px rgba(0,0,0,0.12);
@@ -54,6 +55,17 @@
             font-family: 'Gowun Batang', serif; font-size: 22px; font-weight: 700; line-height: 1.35;
             margin: 0 0 8px 0; color: var(--ink); letter-spacing: -0.2px;
         }
+        .campaign-title { margin: 0 0 10px 0; text-align: left; }
+        .brand-sponsor {
+            display: block; font-family: 'Pretendard Variable','Pretendard',sans-serif;
+            font-size: 12.5px; font-weight: 800; color: var(--brand-navy); margin-bottom: 4px; letter-spacing: -0.1px;
+        }
+        .brand-main {
+            font-family: 'Pretendard Variable','Pretendard',sans-serif;
+            font-size: 27px; font-weight: 900; color: var(--brand-navy); line-height: 1.2; letter-spacing: -0.5px;
+        }
+        .brand-accent { color: var(--tangerine-dark); }
+        .brand-bolt { color: var(--tangerine); margin: 0 1px; }
         .passport-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin: 0; font-weight: 500; }
         .campaign-strip {
             margin-top: 10px; font-size: 11.5px; color: var(--sea-dark); font-weight: 700;
@@ -232,8 +244,12 @@
                 <span class="passport-eyebrow">STAMP PASSPORT</span>
                 <span class="passport-serial">NO. 2026-김녕</span>
             </div>
-            <h1>해녀마을 김녕리<br>골목상권 디지털 지도</h1>
-            <p class="passport-desc">매장의 QR코드를 스캔해 감귤 도장을 모으고 포인트를 적립해보세요</p>
+            <h1 class="campaign-title">
+                <span class="brand-sponsor">MG우정새마을금고와 함께하는</span>
+                <span class="brand-main">우리동네<span class="brand-bolt">⚡</span></span><br>
+                <span class="brand-main">활력 <span class="brand-accent">플러스</span></span>
+            </h1>
+            <p class="passport-desc">해녀마을 김녕리 골목상권 디지털 지도 · 매장 QR코드를 스캔해 감귤 도장을 모으고 포인트를 적립해보세요</p>
             <div class="campaign-strip">🗓 2026.7.3~11.13 매주 금요일 · <button onclick="openCampaignInfo()">골목상권 이용의 날 안내 ℹ️</button></div>
 
             <div class="member-row">
