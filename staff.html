@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>스탬프투어 - 스태프 포인트 확인</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+    :root { --sea:#01b2ad; --sea-dark:#017a76; --tangerine:#ff8c42; --ink:#1b2422; --ink-soft:#667572; --line:#e6ddc8; }
+    * { box-sizing: border-box; }
+    body {
+        font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+        background:#eef3f1; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .card { background:#fff; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.12); padding:28px; width:100%; max-width:400px; }
+    h1 { font-size:19px; margin:0 0 4px; }
+    .sub { font-size:13px; color:var(--ink-soft); margin:0 0 20px; }
+    input {
+        width:100%; padding:14px; border-radius:12px; border:1.5px solid var(--line); font-size:16px;
+        margin-bottom:12px; font-family:inherit; text-align:center; letter-spacing:2px;
+    }
+    button {
+        width:100%; padding:14px; border-radius:12px; border:none; font-weight:700; font-size:14px; cursor:pointer; margin-bottom:8px;
+    }
+    .btn-primary { background:var(--sea); color:#fff; }
+    .btn-danger { background:#fdeceb; color:#c0392b; }
+    .result { margin-top:16px; padding:16px; border-radius:12px; font-size:13.5px; line-height:1.6; display:none; }
+    .result.ok { background:#e6f7f6; color:var(--sea-dark); display:block; }
+    .result.err { background:#fdeceb; color:#c0392b; display:block; }
+    .lock-screen input { text-align:center; letter-spacing:4px; font-size:20px; }
+</style>
+</head>
+<body>
+
+<div class="card" id="lockScreen">
+    <h1>🔒 스태프 인증</h1>
+    <p class="sub">PIN 번호를 입력하세요</p>
+    <input id="pinInput" type="password" inputmode="numeric" placeholder="PIN">
+    <button class="btn-primary" onclick="unlock()">확인</button>
+</div>
+
+<div class="card" id="mainScreen" style="display:none;">
+    <h1>🎟️ 포인트 사용 확인</h1>
+    <p class="sub">손님이 보여준 6자리 코드를 입력하세요</p>
+    <input id="codeInput" inputmode="numeric" maxlength="6" placeholder="123456">
+    <button class="btn-primary" onclick="redeem()">사용 처리</button>
+    <button class="btn-danger" onclick="cancelCode()">코드 취소(환불)</button>
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    // ⚠️ 설정: index.html과 동일한 값을 넣어주세요.
+    const SUPABASE_URL = 'https://qalucfueixjcjqmwidhb.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_JFgZSVFcTmLASSHCaErC5w_tqGHZsZh';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let staffPin = sessionStorage.getItem('staff_pin') || '';
+    if (staffPin) showMain();
+
+    function unlock() {
+        const pin = document.getElementById('pinInput').value.trim();
+        if (!pin) return;
+        staffPin = pin;
+        sessionStorage.setItem('staff_pin', pin);
+        showMain();
+    }
+    function showMain() {
+        document.getElementById('lockScreen').style.display = 'none';
+        document.getElementById('mainScreen').style.display = '';
+    }
+    function showResult(ok, text) {
+        const el = document.getElementById('result');
+        el.className = 'result ' + (ok ? 'ok' : 'err');
+        el.innerText = text;
+    }
+
+    async function redeem() {
+        const code = document.getElementById('codeInput').value.trim();
+        if (code.length !== 6) { showResult(false, '6자리 코드를 입력해주세요.'); return; }
+        const { data, error } = await sb.rpc('staff_redeem_code', { p_staff_pin: staffPin, p_code: code });
+        if (error) {
+            if (error.message.includes('INVALID_PIN')) { sessionStorage.removeItem('staff_pin'); location.reload(); return; }
+            showResult(false, '처리 실패: ' + error.message);
+            return;
+        }
+        showResult(true, `✅ ${data.member_name}님 · ${data.points.toLocaleString()}P 사용 처리 완료`);
+        document.getElementById('codeInput').value = '';
+    }
+
+    async function cancelCode() {
+        const code = document.getElementById('codeInput').value.trim();
+        if (code.length !== 6) { showResult(false, '6자리 코드를 입력해주세요.'); return; }
+        if (!confirm('이 코드를 취소(환불) 처리할까요?')) return;
+        const { data, error } = await sb.rpc('staff_cancel_code', { p_staff_pin: staffPin, p_code: code });
+        if (error) {
+            if (error.message.includes('INVALID_PIN')) { sessionStorage.removeItem('staff_pin'); location.reload(); return; }
+            showResult(false, '처리 실패: ' + error.message);
+            return;
+        }
+        showResult(true, '↩️ 코드가 취소되고 포인트가 환불됐어요.');
+        document.getElementById('codeInput').value = '';
+    }
+</script>
+</body>
+</html>

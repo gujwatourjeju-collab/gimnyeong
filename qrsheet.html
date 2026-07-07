@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>매장 QR 인쇄 시트</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; background:#eef3f1; margin:0; padding:24px; }
+    .lock { max-width:360px; margin:80px auto; background:#fff; padding:28px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.1); text-align:center; }
+    .lock input { width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:10px; text-align:center; font-size:18px; letter-spacing:3px; }
+    .lock button { width:100%; padding:12px; border-radius:10px; border:none; background:#01b2ad; color:#fff; font-weight:700; cursor:pointer; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:16px; max-width:1200px; margin:0 auto; }
+    .qr-card { background:#fff; border-radius:14px; padding:16px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.06); page-break-inside: avoid; }
+    .qr-card canvas { width:100%; height:auto; }
+    .qr-card .name { font-weight:800; font-size:14px; margin-top:8px; }
+    .qr-card .id { font-size:11px; color:#888; }
+    .toolbar { max-width:1200px; margin:0 auto 16px; display:flex; justify-content:space-between; align-items:center; }
+    .toolbar button { padding:10px 18px; border-radius:30px; border:none; background:#1b2422; color:#fff; font-weight:700; cursor:pointer; }
+    @media print { .toolbar, .lock { display:none; } body { background:#fff; } }
+</style>
+</head>
+<body>
+
+<div class="lock" id="lockScreen">
+    <h2>🔒 관리자 인증</h2>
+    <p>스태프 PIN을 입력하면 매장별 QR을 불러옵니다.</p>
+    <input id="pinInput" type="password" inputmode="numeric" placeholder="PIN">
+    <button onclick="loadList()">불러오기</button>
+</div>
+
+<div class="toolbar" id="toolbar" style="display:none;">
+    <div>총 <span id="countLabel">0</span>개 매장 QR</div>
+    <button onclick="window.print()">🖨️ 인쇄하기</button>
+</div>
+<div class="grid" id="grid"></div>
+
+<script>
+    // ⚠️ 설정: index.html과 동일한 값 + 실제 배포 도메인
+    const SUPABASE_URL = 'hhttps://qalucfueixjcjqmwidhb.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_JFgZSVFcTmLASSHCaErC5w_tqGHZsZh';
+    const APP_BASE_URL = 'https://your-domain.example.com'; // index.html이 배포된 실제 주소로 변경
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadList() {
+        const pin = document.getElementById('pinInput').value.trim();
+        const { data, error } = await sb.rpc('admin_get_qr_list', { p_staff_pin: pin });
+        if (error) { alert('PIN이 틀렸거나 오류가 발생했어요: ' + error.message); return; }
+
+        document.getElementById('lockScreen').style.display = 'none';
+        document.getElementById('toolbar').style.display = '';
+        document.getElementById('countLabel').innerText = data.length;
+
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        data.forEach(store => {
+            const card = document.createElement('div');
+            card.className = 'qr-card';
+            const canvas = document.createElement('canvas');
+            card.appendChild(canvas);
+            const nameEl = document.createElement('div');
+            nameEl.className = 'name';
+            nameEl.innerText = store.name;
+            card.appendChild(nameEl);
+            const idEl = document.createElement('div');
+            idEl.className = 'id';
+            idEl.innerText = 'No. ' + store.id;
+            card.appendChild(idEl);
+            grid.appendChild(card);
+
+            const url = `${APP_BASE_URL}/?checkin=${store.qr_token}`;
+            QRCode.toCanvas(canvas, url, { width: 220, margin: 1, color: { dark: '#1b2422', light: '#ffffff' } });
+        });
+    }
+</script>
+</body>
+</html>
