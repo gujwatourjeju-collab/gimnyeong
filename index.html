@@ -2,75 +2,197 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>해녀마을 김녕리 골목상권 디지털 지도</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
     <style>
         :root {
-            --primary-color: #01b2ad;
-            --primary-light: #e6f7f6;
-            --text-dark: #1a1f1e;
-            --text-gray: #656e6d;
-            --bg-light: #f8faf9;
-            --radius-lg: 20px;
+            --sea: #01b2ad;
+            --sea-dark: #017a76;
+            --sea-light: #e6f7f6;
+            --tangerine: #ff8c42;
+            --tangerine-dark: #e06a1f;
+            --paper: #fbf6ea;
+            --ink: #1b2422;
+            --ink-soft: #667572;
+            --line: #e6ddc8;
+            --bg: #eef3f1;
+            --radius-lg: 22px;
             --radius-md: 12px;
             --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
             --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
         }
-        
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f1f5f4;
-            color: var(--text-dark);
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 6% 12%, rgba(1,178,173,0.07) 0%, transparent 40%),
+                radial-gradient(circle at 94% 88%, rgba(255,140,66,0.08) 0%, transparent 40%);
+            color: var(--ink);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            touch-action: pan-x pan-y;
         }
 
         .app-container {
             width: 100%;
             max-width: 1000px;
-            padding: 24px 16px;
+            padding: 22px 16px 32px;
             box-sizing: border-box;
             text-align: center;
         }
 
-        /* 헤더 디자인 개선 */
-        header {
-            margin-bottom: 24px;
+        /* ===== 여권 스탬프 컨셉 히어로 ===== */
+        .passport-hero {
+            margin-bottom: 20px;
         }
-        h1 { 
-            font-size: 26px; 
+        .passport-frame {
+            position: relative;
+            background-color: var(--paper);
+            background-image:
+                repeating-linear-gradient(135deg, rgba(1,178,173,0.035) 0px, rgba(1,178,173,0.035) 1px, transparent 1px, transparent 14px);
+            border: 1.5px dashed var(--sea);
+            border-radius: var(--radius-lg);
+            padding: 26px 22px 22px;
+            box-shadow: 0 10px 26px rgba(1, 178, 173, 0.10);
+        }
+        .corner-stamp {
+            position: absolute;
+            top: -18px;
+            right: 16px;
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            border: 2px solid var(--tangerine);
+            background: rgba(255, 255, 255, 0.92);
+            transform: rotate(-13deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.15;
+            font-size: 9px;
             font-weight: 800;
-            color: var(--text-dark); 
-            margin: 0 0 8px 0; 
-            letter-spacing: -0.5px;
+            letter-spacing: 0.4px;
+            color: var(--tangerine-dark);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
         }
-        .desc { 
-            font-size: 14px; 
-            color: var(--text-gray); 
+        .passport-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .passport-eyebrow {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            color: var(--sea-dark);
+            background: var(--sea-light);
+            padding: 5px 10px;
+            border-radius: 30px;
+        }
+        .passport-serial {
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--ink-soft);
+            font-variant-numeric: tabular-nums;
+        }
+        .passport-frame h1 {
+            font-family: 'Gowun Batang', serif;
+            font-size: 23px;
+            font-weight: 700;
+            line-height: 1.35;
+            margin: 0 0 10px 0;
+            color: var(--ink);
+            letter-spacing: -0.2px;
+        }
+        .passport-desc {
+            font-size: 13.5px;
+            color: var(--ink-soft);
+            line-height: 1.6;
             margin: 0;
             font-weight: 500;
         }
 
-        /* 지도 프레임 레이아웃 */
-        .map-frame {
+        .stamp-progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px dashed var(--line);
+            flex-wrap: wrap;
+        }
+        .stamp-slot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1.5px dashed var(--line);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            opacity: 0.32;
+            transform: scale(0.92);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .stamp-slot.filled {
+            opacity: 1;
+            transform: scale(1) rotate(-8deg);
+            border-style: solid;
+            border-color: var(--tangerine);
+            background: #fff6ec;
+            box-shadow: 0 3px 8px rgba(255, 140, 66, 0.25);
+        }
+        .stamp-count {
+            margin-left: 6px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--ink-soft);
+            white-space: nowrap;
+        }
+        .stamp-count strong {
+            font-size: 16px;
+            color: var(--tangerine-dark);
+        }
+
+        /* ===== 지도 (카카오톡 인앱 브라우저 호환: padding-bottom 방식) ===== */
+        .map-wrap {
             position: relative;
             width: 100%;
-            aspect-ratio: 900 / 630;
-            background-image: url('map-bg.png');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
+            height: 0;
+            padding-bottom: 70%; /* 900:630 비율 */
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             overflow: hidden;
             background-color: #fff;
         }
+        .map-bg-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('map-bg.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
 
-        /* 완전히 투명한 터치 영역 */
         .spot-trigger {
             position: absolute;
             width: 4.5%;
@@ -84,7 +206,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 감귤 스탬프 안착 레이어 */
         .stamp-layer {
             position: absolute;
             width: 7.5%;
@@ -105,11 +226,11 @@
             transform: translate(-50%, -50%) scale(1) rotate(-12deg);
         }
 
-        /* 모달 전체 화면 덮는 흐린 배경 (모바일 이슈 해결의 핵심) */
+        /* ===== 모달 ===== */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0, 0, 0, 0.4);
+            background-color: rgba(15, 26, 24, 0.45);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             z-index: 100;
@@ -118,62 +239,71 @@
             transition: opacity 0.3s ease;
             justify-content: center;
             align-items: center;
+            padding: 16px;
         }
         .modal-overlay.show {
             display: flex;
             opacity: 1;
         }
 
-        /* 정보창(모달) 반응형 UI 스타일링 */
         .modal {
-            background: white; 
-            padding: 28px; 
+            background: white;
+            padding: 26px 26px 24px;
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg); 
+            box-shadow: var(--shadow-lg);
             width: 100%;
             max-width: 380px;
             box-sizing: border-box;
             text-align: left;
             transform: translateY(20px);
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
         }
         .modal-overlay.show .modal {
             transform: translateY(0);
         }
 
-        .modal h3 { 
-            margin: 0 0 6px 0; 
-            font-size: 22px; 
-            font-weight: 700;
-            color: var(--text-dark); 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
+        .modal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--sea-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 12px;
         }
-        .modal-meta { 
-            font-size: 13px; 
-            color: var(--primary-color); 
-            font-weight: 600; 
-            background-color: var(--primary-light);
+
+        .modal h3 {
+            margin: 0 0 6px 0;
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .modal-meta {
+            font-size: 12.5px;
+            color: var(--sea-dark);
+            font-weight: 700;
+            background-color: var(--sea-light);
             display: inline-block;
             padding: 4px 10px;
             border-radius: 30px;
-            margin-bottom: 16px; 
+            margin-bottom: 16px;
         }
-        .modal p { 
-            margin: 0 0 20px 0; 
-            font-size: 14px; 
-            color: var(--text-gray); 
-            line-height: 1.6; 
-            white-space: pre-line; 
+        .modal p {
+            margin: 0 0 20px 0;
+            font-size: 13.5px;
+            color: var(--ink-soft);
+            line-height: 1.65;
+            white-space: pre-line;
         }
-        
-        /* 주소 및 연락처 정보 박스 */
+
         .modal-info-box {
-            background-color: var(--bg-light);
-            padding: 16px;
+            background-color: #f7faf9;
+            padding: 15px 16px;
             border-radius: var(--radius-md);
-            margin-bottom: 24px;
+            margin-bottom: 22px;
             font-size: 13px;
             color: #4a5251;
             border: 1px solid #eef2f1;
@@ -186,7 +316,7 @@
         .modal-info-box div:last-child { margin-bottom: 0; }
         .modal-info-box span.label {
             font-weight: 700;
-            color: var(--text-dark);
+            color: var(--ink);
             width: 50px;
             flex-shrink: 0;
             margin-top: 1px;
@@ -194,16 +324,15 @@
         .modal-info-box span.val {
             line-height: 1.4;
         }
-        
-        /* 전화 걸기 버튼 */
+
         .phone-link {
             display: inline-flex;
             align-items: center;
-            color: var(--primary-color);
+            color: var(--sea-dark);
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
             background: #fff;
-            border: 1px solid #dceffd;
+            border: 1px solid #d6efed;
             padding: 3px 8px;
             border-radius: 6px;
             font-size: 11px;
@@ -211,47 +340,69 @@
             box-shadow: var(--shadow-sm);
             transition: all 0.2s;
         }
-        .phone-link:hover {
-            background-color: var(--primary-color);
+        .phone-link:active {
+            background-color: var(--sea);
             color: white;
-            border-color: var(--primary-color);
+            border-color: var(--sea);
         }
 
-        /* 하단 버튼 구조 */
         .modal-buttons { display: flex; gap: 10px; }
         .modal-btn {
-            background: var(--primary-color); color: white; border: none;
-            padding: 14px; width: 65%; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; text-align: center;
-            font-size: 14px; box-shadow: 0 4px 12px rgba(1, 178, 173, 0.2); transition: background 0.2s;
+            background: var(--sea);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 65%;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(1, 178, 173, 0.25);
+            transition: background 0.2s;
         }
-        .modal-btn:hover { background: #009d99; }
+        .modal-btn:active { background: var(--sea-dark); }
         .modal-close-btn {
-            background: #f0f3f2; color: var(--text-gray); border: none;
-            padding: 14px; width: 35%; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; text-align: center;
-            font-size: 14px; transition: background 0.2s;
+            background: #f0f3f2;
+            color: var(--ink-soft);
+            border: none;
+            padding: 14px;
+            width: 35%;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            transition: background 0.2s;
         }
-        .modal-close-btn:hover { background: #e2e7e6; }
+        .modal-close-btn:active { background: #e2e7e6; }
 
-        /* 초기화 버튼 세련되게 변경 */
         .reset-btn {
-            margin-top: 24px; padding: 12px 24px; background: #fff; border: 1px solid #e2e7e6;
-            border-radius: 30px; cursor: pointer; font-weight: 600; color: var(--text-gray); font-size: 13px;
-            box-shadow: var(--shadow-sm); transition: all 0.2s;
+            margin-top: 22px;
+            padding: 12px 22px;
+            background: transparent;
+            border: 1.5px dashed var(--line);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--ink-soft);
+            font-size: 12.5px;
+            letter-spacing: 0.2px;
+            transition: all 0.2s;
         }
-        .reset-btn:hover { background: #fafafa; color: var(--text-dark); border-color: #ccd4d3; }
+        .reset-btn:active { background: #fff; color: var(--ink); border-color: var(--sea); }
 
-        /* 모바일 세로 화면을 위한 미디어 쿼리 (바텀 시트 전환 기술) */
         @media (max-width: 540px) {
             .modal-overlay {
-                align-items: flex-end; /* 아래 정렬 */
+                align-items: flex-end;
+                padding: 0;
             }
             .modal {
                 max-width: 100%;
-                border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* 위쪽만 라운딩 */
-                transform: translateY(100%); /* 아래서 위로 올라오는 효과 */
-                padding: 32px 20px 24px 20px;
+                border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+                transform: translateY(100%);
+                padding: 32px 20px calc(22px + env(safe-area-inset-bottom)) 20px;
             }
-            /* 상단 바텀시트 핸들러 표시 */
             .modal::before {
                 content: '';
                 position: absolute;
@@ -267,12 +418,30 @@
 <body>
 
 <div class="app-container">
-    <header>
-        <h1>🗺️ 해녀마을 김녕리 골목상권 디지털 지도</h1>
-        <div class="desc">지도 위 아이콘을 터치하면 상세 정보 확인 및 감귤 도장을 획득할 수 있습니다.</div>
+    <header class="passport-hero">
+        <div class="passport-frame">
+            <div class="corner-stamp">GIMNYEONG<br>VILLAGE<br>★</div>
+            <div class="passport-row">
+                <span class="passport-eyebrow">STAMP PASSPORT</span>
+                <span class="passport-serial">NO. 2026-김녕</span>
+            </div>
+            <h1>해녀마을 김녕리<br>골목상권 디지털 지도</h1>
+            <p class="passport-desc">지도 위 상점 아이콘을 눌러 상세 정보를 확인하고<br>감귤 도장 5개를 모아보세요</p>
+
+            <div class="stamp-progress" id="stampProgress">
+                <div class="stamp-slot" data-idx="0">🍊</div>
+                <div class="stamp-slot" data-idx="1">🍊</div>
+                <div class="stamp-slot" data-idx="2">🍊</div>
+                <div class="stamp-slot" data-idx="3">🍊</div>
+                <div class="stamp-slot" data-idx="4">🍊</div>
+                <span class="stamp-count"><strong id="stampCountNum">0</strong>/5 수집</span>
+            </div>
+        </div>
     </header>
 
-    <div class="map-frame">
+    <div class="map-wrap">
+        <div class="map-bg-image"></div>
+
         <div class="spot-trigger" style="left: 12.5%; top: 47.8%;" onclick="openAuth('청춘당꽈배기')"></div>
         <div class="spot-trigger" style="left: 18.9%; top: 50.5%;" onclick="openAuth('기억제주맛집')"></div>
         <div class="spot-trigger" style="left: 23.9%; top: 45.9%;" onclick="openAuth('김녕빵집')"></div>
@@ -313,10 +482,11 @@
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
     <div class="modal" id="authModal">
+        <div class="modal-icon">🏪</div>
         <h3 id="modalTitle">매장 이름</h3>
         <div class="modal-meta" id="modalCategory">분류 정보</div>
         <p id="modalDesc">매장 상세 설명이 여기에 들어갑니다.</p>
-        
+
         <div class="modal-info-box">
             <div><span class="label">📍 주소</span><span id="modalAddress" class="val">제주도 제주시...</span></div>
             <div>
@@ -372,12 +542,12 @@
     function openAuth(name) {
         currentTargetName = name;
         const info = storeData[name] || { cat: '매장', desc: '상세 정보 준비 중입니다.', addr: '정보 없음', tel: '' };
-        
+
         document.getElementById('modalTitle').innerText = name;
         document.getElementById('modalCategory').innerText = info.cat;
         document.getElementById('modalDesc').innerText = info.desc;
         document.getElementById('modalAddress').innerText = info.addr;
-        
+
         const phoneBtn = document.getElementById('modalPhoneBtn');
         if (info.tel && info.tel.trim() !== '') {
             document.getElementById('modalPhone').innerText = info.tel;
@@ -387,21 +557,28 @@
             document.getElementById('modalPhone').innerText = '등록 정보 없음';
             phoneBtn.style.display = 'none';
         }
-        
+
         document.getElementById('modalOverlay').classList.add('show');
-        document.body.style.overflow = 'hidden'; // 정보창 열릴 때 뒷배경 스크롤 방지
+        document.body.style.overflow = 'hidden';
     }
 
     function closeModal() {
         document.getElementById('modalOverlay').classList.remove('show');
-        document.body.style.overflow = ''; // 스크롤 복구
+        document.body.style.overflow = '';
     }
 
-    // 모달창 바깥 검은 배경 터치시 닫기 기능
     function closeModalOnBg(e) {
         if (e.target.id === 'modalOverlay') {
             closeModal();
         }
+    }
+
+    function updateStampUI() {
+        const slots = document.querySelectorAll('.stamp-slot');
+        slots.forEach((slot, idx) => {
+            slot.classList.toggle('filled', idx < currentStampCount);
+        });
+        document.getElementById('stampCountNum').innerText = currentStampCount;
     }
 
     function collectStamp() {
@@ -417,7 +594,8 @@
         historyList.push(currentTargetName);
         document.getElementById(`stamp${currentStampCount}`).classList.add('active');
         currentStampCount++;
-        
+        updateStampUI();
+
         closeModal();
         setTimeout(() => {
             alert(`🍊 [${currentTargetName}] 골목상권 스탬프 투어 도장 완료!`);
@@ -431,6 +609,7 @@
         for (let i = 0; i < 5; i++) {
             document.getElementById(`stamp${i}`).classList.remove('active');
         }
+        updateStampUI();
         closeModal();
     }
 </script>
