@@ -111,10 +111,16 @@
         .stamp-layer.active { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(-12deg); }
 
         .fab-scan {
-            position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 60;
-            background: var(--sea); color: #fff; border: none; padding: 14px 26px; border-radius: 40px;
-            font-size: 14.5px; font-weight: 800; box-shadow: 0 10px 24px rgba(1,178,173,0.4); cursor: pointer;
+            position: fixed; right: 18px; bottom: max(20px, calc(env(safe-area-inset-bottom) + 14px));
+            z-index: 60; width: 64px; height: 64px; border-radius: 50%; border: none; cursor: pointer;
+            background: linear-gradient(145deg, var(--sea), var(--sea-dark)); color: #fff;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+            box-shadow: 0 10px 22px rgba(1,178,173,0.45), 0 0 0 6px rgba(1,178,173,0.12);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
+        .fab-scan:active { transform: scale(0.93); box-shadow: 0 6px 14px rgba(1,178,173,0.4), 0 0 0 6px rgba(1,178,173,0.12); }
+        .fab-scan .fab-icon { font-size: 22px; line-height: 1; }
+        .fab-scan .fab-label { font-size: 8.5px; font-weight: 800; letter-spacing: 0.2px; }
 
         .reset-btn {
             margin-top: 22px; padding: 12px 22px; background: transparent; border: 1.5px dashed var(--line);
@@ -251,7 +257,10 @@
     <button class="reset-btn" onclick="logout()">🚪 로그아웃</button>
 </div>
 
-<button class="fab-scan" id="fabScan" style="display:none;" onclick="openScanner()">📷 QR 스캔해서 도장받기</button>
+<button class="fab-scan" id="fabScan" style="display:none;" onclick="openScanner()" aria-label="QR 스캔해서 도장받기">
+    <span class="fab-icon">📷</span>
+    <span class="fab-label">QR스캔</span>
+</button>
 
 <!-- 회원가입 -->
 <div class="overlay show" id="authOverlay">
@@ -323,22 +332,40 @@
 
 <script>
     // ⚠️ 설정: Supabase 프로젝트 생성 후 아래 두 값을 반드시 채워주세요.
-    const SUPABASE_URL = 'https://qalucfueixjcjqmwidhb.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_JFgZSVFcTmLASSHCaErC5w_tqGHZsZh';
+    const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 지도 마커 위치 (schema.sql 시딩 순서와 반드시 동일)
-    const POSITIONS = [
-        {left:'12.5%', top:'47.8%'}, {left:'18.9%', top:'50.5%'}, {left:'23.9%', top:'45.9%'},
-        {left:'23.6%', top:'54.8%'}, {left:'29.7%', top:'41.1%'}, {left:'29.2%', top:'48.7%'},
-        {left:'29.0%', top:'56.4%'}, {left:'29.2%', top:'65.5%'}, {left:'33.6%', top:'56.5%'},
-        {left:'33.5%', top:'37.1%'}, {left:'37.4%', top:'41.3%'}, {left:'35.5%', top:'48.5%'},
-        {left:'42.3%', top:'38.0%'}, {left:'41.9%', top:'47.1%'}, {left:'42.7%', top:'55.4%'},
-        {left:'46.9%', top:'41.8%'}, {left:'47.3%', top:'51.7%'}, {left:'53.3%', top:'37.6%'},
-        {left:'53.4%', top:'49.6%'}, {left:'58.4%', top:'37.9%'}, {left:'55.8%', top:'58.4%'},
-        {left:'60.8%', top:'46.6%'}, {left:'63.8%', top:'53.4%'}, {left:'66.4%', top:'44.9%'},
-        {left:'74.0%', top:'41.5%'}, {left:'78.9%', top:'39.6%'}, {left:'84.4%', top:'31.8%'}
-    ];
+    // 지도 마커 위치 (매장 "이름"으로 매칭 — DB에서 반환되는 순서와 무관하게 항상 정확함)
+    const POSITIONS = {
+        '청춘당꽈배기':      {left:'12.5%', top:'47.8%'},
+        '기억제주맛집':      {left:'18.9%', top:'50.5%'},
+        '김녕빵집':          {left:'23.9%', top:'45.9%'},
+        '김녕에사는김영훈':   {left:'23.6%', top:'54.8%'},
+        '김녕옥상회':        {left:'29.7%', top:'41.1%'},
+        '제프버거':          {left:'29.2%', top:'48.7%'},
+        '본초불닭발':        {left:'29.0%', top:'56.4%'},
+        '스페샬펜션':        {left:'29.2%', top:'65.5%'},
+        '매코롬':            {left:'33.6%', top:'56.5%'},
+        '김녕챗':            {left:'33.5%', top:'37.1%'},
+        '김녕서랍':          {left:'37.4%', top:'41.3%'},
+        '김녕소품샵':        {left:'35.5%', top:'48.5%'},
+        '한라식당':          {left:'42.3%', top:'38.0%'},
+        '영월갈비':          {left:'41.9%', top:'47.1%'},
+        '청굴식당':          {left:'42.7%', top:'55.4%'},
+        '인수네':            {left:'46.9%', top:'41.8%'},
+        '신미식당':          {left:'47.3%', top:'51.7%'},
+        '으뜸원':            {left:'53.3%', top:'37.6%'},
+        'BHC':               {left:'53.4%', top:'49.6%'},
+        '파란소리':          {left:'58.4%', top:'37.9%'},
+        '씨유':              {left:'55.8%', top:'58.4%'},
+        '킹마트':            {left:'60.8%', top:'46.6%'},
+        '더벤티':            {left:'63.8%', top:'53.4%'},
+        '김녕홀리다':        {left:'66.4%', top:'44.9%'},
+        '대복해장국':        {left:'74.0%', top:'41.5%'},
+        '모산봉':            {left:'78.9%', top:'39.6%'},
+        '김녕나루터':        {left:'84.4%', top:'31.8%'}
+    };
 
     let session = JSON.parse(localStorage.getItem('gny_session') || 'null');
     let storesData = [];
@@ -499,7 +526,11 @@
     async function loadStores() {
         const { data, error } = await sb.from('stores_public').select('*').order('id');
         if (error) { alert('매장 목록을 불러오지 못했어요.'); return; }
-        storesData = data.map((s, i) => ({ ...s, ...(POSITIONS[i] || {left:'50%', top:'50%'}) }));
+        storesData = data.map(s => {
+            const pos = POSITIONS[s.name];
+            if (!pos) console.warn(`좌표 매핑 없음: "${s.name}" — POSITIONS에 이름을 추가해주세요.`);
+            return { ...s, ...(pos || { left: '50%', top: '50%' }) };
+        });
         document.getElementById('stampTotalNum').innerText = storesData.length;
         renderMarkers();
     }
