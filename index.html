@@ -583,7 +583,7 @@
         const total = storesData.length || 27;
         document.getElementById('progressFill').style.width = Math.round((myStamps.size/total)*100) + '%';
 
-        const milestone = Math.min(5, Math.floor((myStamps.size/total)*5));
+        const milestone = Math.min(5, myStamps.size);
         for (let i=0;i<5;i++){
             document.getElementById('stamp'+i).classList.toggle('active', i < milestone);
         }
