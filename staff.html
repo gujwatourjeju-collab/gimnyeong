@@ -1,727 +1,106 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>해녀마을 김녕리 골목상권 디지털 지도</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-    <style>
-        :root {
-            --sea: #01b2ad; --sea-dark: #017a76; --sea-light: #e6f7f6;
-            --tangerine: #ff8c42; --tangerine-dark: #e06a1f;
-            --paper: #fbf6ea; --ink: #1b2422; --ink-soft: #667572; --line: #e6ddc8; --bg: #eef3f1;
-            --radius-lg: 22px; --radius-md: 12px;
-            --shadow-sm: 0 4px 12px rgba(0,0,0,0.05); --shadow-lg: 0 20px 40px rgba(0,0,0,0.12);
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-            margin: 0; padding: 0; background-color: var(--bg);
-            background-image: radial-gradient(circle at 6% 12%, rgba(1,178,173,0.07) 0%, transparent 40%),
-                               radial-gradient(circle at 94% 88%, rgba(255,140,66,0.08) 0%, transparent 40%);
-            color: var(--ink); display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh; -webkit-font-smoothing: antialiased;
-        }
-        .app-container { width: 100%; max-width: 1000px; padding: 22px 16px 40px; box-sizing: border-box; text-align: center; }
-
-        /* ===== 여권 히어로 ===== */
-        .passport-hero { margin-bottom: 20px; }
-        .passport-frame {
-            position: relative; background-color: var(--paper);
-            background-image: repeating-linear-gradient(135deg, rgba(1,178,173,0.035) 0px, rgba(1,178,173,0.035) 1px, transparent 1px, transparent 14px);
-            border: 1.5px dashed var(--sea); border-radius: var(--radius-lg);
-            padding: 26px 22px 22px; box-shadow: 0 10px 26px rgba(1,178,173,0.10);
-        }
-        .corner-stamp {
-            position: absolute; top: -18px; right: 16px; width: 66px; height: 66px; border-radius: 50%;
-            border: 2px solid var(--tangerine); background: rgba(255,255,255,0.92); transform: rotate(-13deg);
-            display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.15;
-            font-size: 9px; font-weight: 800; letter-spacing: 0.4px; color: var(--tangerine-dark);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        }
-        .passport-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
-        .passport-eyebrow {
-            font-size: 10.5px; font-weight: 700; letter-spacing: 1.4px; color: var(--sea-dark);
-            background: var(--sea-light); padding: 5px 10px; border-radius: 30px;
-        }
-        .passport-serial { font-size: 10.5px; font-weight: 600; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-        .passport-frame h1 {
-            font-family: 'Gowun Batang', serif; font-size: 22px; font-weight: 700; line-height: 1.35;
-            margin: 0 0 8px 0; color: var(--ink); letter-spacing: -0.2px;
-        }
-        .passport-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin: 0; font-weight: 500; }
-
-        .member-row {
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
-            margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line);
-        }
-        .member-greet { text-align: left; font-size: 13px; color: var(--ink-soft); font-weight: 600; }
-        .member-greet strong { color: var(--ink); font-size: 14.5px; }
-        .point-badge { font-size: 12.5px; font-weight: 700; color: var(--tangerine-dark); }
-        .point-badge strong { font-size: 17px; }
-        .redeem-btn {
-            background: var(--ink); color: #fff; border: none; padding: 8px 14px; border-radius: 30px;
-            font-size: 12px; font-weight: 700; cursor: pointer;
-        }
-        .stamp-summary { margin-top: 12px; font-size: 12.5px; color: var(--ink-soft); font-weight: 700; }
-        .stamp-summary strong { color: var(--tangerine-dark); font-size: 15px; }
-        .progress-track { width: 100%; height: 7px; background: #efe8d6; border-radius: 10px; overflow: hidden; margin-top: 8px; }
-        .progress-fill { height: 100%; background: var(--tangerine); border-radius: 10px; transition: width 0.4s ease; width: 0%; }
-
-        /* ===== 지도 ===== */
-        .map-wrap {
-            position: relative; width: 100%; height: 0; padding-bottom: 70%;
-            border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; background-color: #fff;
-        }
-        .map-zoom-layer { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 0 0; will-change: transform; }
-        .map-bg-image { position: absolute; inset: 0; width: 100%; height: 100%; background-image: url('map-bg.png'); background-size: 100% 100%; background-repeat: no-repeat; }
-        .map-caption { font-size: 11.5px; color: var(--ink-soft); margin-top: 10px; font-weight: 600; opacity: 0.75; }
-        .zoom-reset-btn {
-            position: absolute; top: 10px; right: 10px; z-index: 30; width: 38px; height: 38px; border-radius: 50%;
-            background: rgba(255,255,255,0.95); box-shadow: var(--shadow-sm); display: flex; align-items: center;
-            justify-content: center; font-size: 10.5px; font-weight: 800; color: var(--ink-soft);
-            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
-        }
-        .zoom-reset-btn.visible { opacity: 1; pointer-events: auto; }
-
-        .spot-trigger {
-            position: absolute; width: 4.5%; height: 6.5%; transform: translate(-50%,-50%);
-            border-radius: 50%; background-color: transparent; border: none; cursor: pointer; z-index: 10;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .visited-badge {
-            position: absolute; width: 1.9%; height: 2.7%; transform: translate(-41%, -16%);
-            background: var(--tangerine); border-radius: 50%;
-            display: none; align-items: center; justify-content: center; z-index: 15;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.25); pointer-events: none;
-        }
-        .visited-badge svg { width: 60%; height: 60%; }
-        .visited-badge.show { display: flex; }
-
-        .stamp-layer {
-            position: absolute; width: 7.5%; height: 10.5%; transform: translate(-50%,-50%);
-            display: flex; align-items: center; justify-content: center; font-size: 34px; pointer-events: none;
-            opacity: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-            transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s ease; z-index: 20;
-        }
-        .stamp-layer.active { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(-12deg); }
-
-        .fab-scan {
-            position: fixed; right: 18px; bottom: max(20px, calc(env(safe-area-inset-bottom) + 14px));
-            z-index: 60; width: 64px; height: 64px; border-radius: 50%; border: none; cursor: pointer;
-            background: linear-gradient(145deg, var(--sea), var(--sea-dark)); color: #fff;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
-            box-shadow: 0 10px 22px rgba(1,178,173,0.45), 0 0 0 6px rgba(1,178,173,0.12);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .fab-scan:active { transform: scale(0.93); box-shadow: 0 6px 14px rgba(1,178,173,0.4), 0 0 0 6px rgba(1,178,173,0.12); }
-        .fab-scan .fab-icon { font-size: 22px; line-height: 1; }
-        .fab-scan .fab-label { font-size: 8.5px; font-weight: 800; letter-spacing: 0.2px; }
-
-        .reset-btn {
-            margin-top: 22px; padding: 12px 22px; background: transparent; border: 1.5px dashed var(--line);
-            border-radius: 30px; cursor: pointer; font-weight: 700; color: var(--ink-soft); font-size: 12.5px;
-        }
-
-        /* ===== 모달 공통 ===== */
-        .overlay {
-            position: fixed; inset: 0; background-color: rgba(15,26,24,0.5); backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px); z-index: 100; display: none; opacity: 0; transition: opacity 0.3s ease;
-            justify-content: center; align-items: center; padding: 16px;
-        }
-        .overlay.show { display: flex; opacity: 1; }
-        .modal {
-            background: white; padding: 26px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
-            width: 100%; max-width: 380px; box-sizing: border-box; text-align: left;
-            transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); position: relative;
-        }
-        .overlay.show .modal { transform: translateY(0); }
-        .modal-icon {
-            width: 40px; height: 40px; border-radius: 50%; background: var(--sea-light);
-            display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;
-        }
-        .modal h3 { margin: 0 0 6px 0; font-size: 21px; font-weight: 700; color: var(--ink); }
-        .modal-meta {
-            font-size: 12.5px; color: var(--sea-dark); font-weight: 700; background-color: var(--sea-light);
-            display: inline-block; padding: 4px 10px; border-radius: 30px; margin-bottom: 12px;
-        }
-        .visited-chip {
-            font-size: 12px; font-weight: 700; color: var(--tangerine-dark); background: #fff3e8;
-            display: inline-block; padding: 4px 10px; border-radius: 30px; margin: 0 0 12px 8px;
-        }
-        .modal p { margin: 0 0 20px 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.65; white-space: pre-line; }
-        .modal-info-box {
-            background-color: #f7faf9; padding: 15px 16px; border-radius: var(--radius-md); margin-bottom: 22px;
-            font-size: 13px; color: #4a5251; border: 1px solid #eef2f1;
-        }
-        .modal-info-box div { display: flex; align-items: flex-start; margin-bottom: 10px; }
-        .modal-info-box div:last-child { margin-bottom: 0; }
-        .modal-info-box span.label { font-weight: 700; color: var(--ink); width: 50px; flex-shrink: 0; margin-top: 1px; }
-        .phone-link {
-            display: inline-flex; align-items: center; color: var(--sea-dark); text-decoration: none; font-weight: 700;
-            background: #fff; border: 1px solid #d6efed; padding: 3px 8px; border-radius: 6px; font-size: 11px;
-            margin-left: auto; box-shadow: var(--shadow-sm);
-        }
-        .modal-buttons { display: flex; gap: 10px; }
-        .modal-btn {
-            background: var(--sea); color: white; border: none; padding: 14px; width: 100%; border-radius: var(--radius-md);
-            font-weight: 700; cursor: pointer; text-align: center; font-size: 14px; box-shadow: 0 4px 12px rgba(1,178,173,0.25);
-        }
-        .modal-close-btn {
-            background: #f0f3f2; color: var(--ink-soft); border: none; padding: 14px; width: 35%;
-            border-radius: var(--radius-md); font-weight: 700; cursor: pointer; text-align: center; font-size: 14px;
-        }
-        @media (max-width: 540px) {
-            .overlay { align-items: flex-end; padding: 0; }
-            .modal { max-width: 100%; border-radius: var(--radius-lg) var(--radius-lg) 0 0; transform: translateY(100%); padding: 32px 20px calc(22px + env(safe-area-inset-bottom)) 20px; }
-            .modal::before { content:''; position:absolute; top:12px; left:50%; transform:translateX(-50%); width:40px; height:5px; background-color:#e2e7e6; border-radius:3px; }
-        }
-
-        /* ===== 회원가입 ===== */
-        .auth-card input {
-            width: 100%; padding: 13px 14px; border-radius: var(--radius-md); border: 1.5px solid var(--line);
-            font-size: 14px; margin-bottom: 10px; font-family: inherit;
-        }
-        .auth-note { font-size: 11.5px; color: var(--ink-soft); background: #f7faf9; padding: 10px 12px; border-radius: var(--radius-md); margin-top: 4px; line-height: 1.5; }
-
-        /* ===== QR 스캐너 ===== */
-        .scan-overlay {
-            position: fixed; inset: 0; background: #000; z-index: 200; display: none;
-            align-items: center; justify-content: center; flex-direction: column;
-        }
-        .scan-overlay.show { display: flex; }
-        .scan-overlay video { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
-        .scan-frame {
-            width: 68vw; max-width: 280px; aspect-ratio: 1; border: 3px solid var(--tangerine); border-radius: 20px;
-            box-shadow: 0 0 0 2000px rgba(0,0,0,0.45); position: relative; z-index: 2;
-        }
-        .scan-hint { color: #fff; font-size: 13px; margin-top: 18px; position: relative; z-index: 2; font-weight: 600; }
-        .scan-close {
-            position: absolute; top: max(16px, env(safe-area-inset-top)); right: 16px; z-index: 3;
-            background: rgba(255,255,255,0.15); color: #fff; border: none; padding: 10px 16px; border-radius: 30px;
-            font-weight: 700; font-size: 13px;
-        }
-
-        /* ===== 포인트 사용 코드 ===== */
-        .redeem-code-display {
-            text-align: center; font-size: 40px; font-weight: 800; letter-spacing: 6px; color: var(--tangerine-dark);
-            background: #fff3e8; border-radius: var(--radius-md); padding: 20px 10px; margin: 12px 0 16px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>스탬프투어 - 스태프 포인트 확인</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+    :root { --sea:#01b2ad; --sea-dark:#017a76; --tangerine:#ff8c42; --ink:#1b2422; --ink-soft:#667572; --line:#e6ddc8; }
+    * { box-sizing: border-box; }
+    body {
+        font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+        background:#eef3f1; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .card { background:#fff; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.12); padding:28px; width:100%; max-width:400px; }
+    h1 { font-size:19px; margin:0 0 4px; }
+    .sub { font-size:13px; color:var(--ink-soft); margin:0 0 20px; }
+    input {
+        width:100%; padding:14px; border-radius:12px; border:1.5px solid var(--line); font-size:16px;
+        margin-bottom:12px; font-family:inherit; text-align:center; letter-spacing:2px;
+    }
+    button {
+        width:100%; padding:14px; border-radius:12px; border:none; font-weight:700; font-size:14px; cursor:pointer; margin-bottom:8px;
+    }
+    .btn-primary { background:var(--sea); color:#fff; }
+    .btn-danger { background:#fdeceb; color:#c0392b; }
+    .result { margin-top:16px; padding:16px; border-radius:12px; font-size:13.5px; line-height:1.6; display:none; }
+    .result.ok { background:#e6f7f6; color:var(--sea-dark); display:block; }
+    .result.err { background:#fdeceb; color:#c0392b; display:block; }
+    .lock-screen input { text-align:center; letter-spacing:4px; font-size:20px; }
+</style>
 </head>
 <body>
 
-<div class="app-container" id="mainApp" style="display:none;">
-    <header class="passport-hero">
-        <div class="passport-frame">
-            <div class="corner-stamp">GIMNYEONG<br>VILLAGE<br>★</div>
-            <div class="passport-row">
-                <span class="passport-eyebrow">STAMP PASSPORT</span>
-                <span class="passport-serial">NO. 2026-김녕</span>
-            </div>
-            <h1>해녀마을 김녕리<br>골목상권 디지털 지도</h1>
-            <p class="passport-desc">매장의 QR코드를 스캔해 감귤 도장을 모으고 포인트를 적립해보세요</p>
-
-            <div class="member-row">
-                <div class="member-greet"><strong id="memberName">-</strong>님, 환영합니다</div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <div class="point-badge"><strong id="pointBalance">0</strong>P</div>
-                    <button class="redeem-btn" onclick="openRedeem()">사용하기</button>
-                </div>
-            </div>
-            <div class="stamp-summary">
-                <strong id="stampCountNum">0</strong>/<span id="stampTotalNum">27</span> 매장 스탬프 수집
-                <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-            </div>
-        </div>
-    </header>
-
-    <div class="map-wrap" id="mapWrap">
-        <div class="zoom-reset-btn" id="zoomResetBtn" onclick="resetZoom()">1:1</div>
-        <div class="map-zoom-layer" id="mapZoomLayer">
-            <div class="map-bg-image"></div>
-            <div id="markersHost"></div>
-            <div class="stamp-layer" id="stamp0" style="left: 14.7%; top: 83.9%;">🍊</div>
-            <div class="stamp-layer" id="stamp1" style="left: 28.8%; top: 83.9%;">🍊</div>
-            <div class="stamp-layer" id="stamp2" style="left: 43.2%; top: 84.1%;">🍊</div>
-            <div class="stamp-layer" id="stamp3" style="left: 57.4%; top: 83.9%;">🍊</div>
-            <div class="stamp-layer" id="stamp4" style="left: 71.6%; top: 83.7%;">🍊</div>
-        </div>
-    </div>
-    <div class="map-caption">🤏 두 손가락으로 지도를 확대·축소할 수 있어요</div>
-
-    <button class="reset-btn" onclick="logout()">🚪 로그아웃</button>
+<div class="card" id="lockScreen">
+    <h1>🔒 스태프 인증</h1>
+    <p class="sub">PIN 번호를 입력하세요</p>
+    <input id="pinInput" type="password" inputmode="numeric" placeholder="PIN">
+    <button class="btn-primary" onclick="unlock()">확인</button>
 </div>
 
-<button class="fab-scan" id="fabScan" style="display:none;" onclick="openScanner()" aria-label="QR 스캔해서 도장받기">
-    <span class="fab-icon">📷</span>
-    <span class="fab-label">QR스캔</span>
-</button>
-
-<!-- 회원가입 -->
-<div class="overlay show" id="authOverlay">
-    <div class="modal auth-card">
-        <div class="modal-icon">🍊</div>
-        <h3>스탬프 여권 발급</h3>
-        <div class="modal-meta">STAMP PASSPORT 신규 발급</div>
-        <p>이름과 전화번호만 입력하면 바로 시작할 수 있어요. 다음 방문부터는 같은 번호로 자동으로 이어집니다.</p>
-        <input id="authName" placeholder="이름" maxlength="20">
-        <input id="authPhone" placeholder="전화번호 (- 없이 숫자만)" inputmode="numeric" maxlength="15">
-        <button class="modal-btn" onclick="handleSignup()">여권 발급받기</button>
-        <div class="auth-note">⚠ 문자 인증 없이 전화번호로만 식별돼요. 본인 번호를 정확히 입력해주세요.</div>
-    </div>
-</div>
-
-<!-- 매장 정보 -->
-<div class="overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
-    <div class="modal">
-        <div class="modal-icon">🏪</div>
-        <h3 id="modalTitle">매장 이름</h3>
-        <span class="modal-meta" id="modalCategory">분류 정보</span>
-        <span class="visited-chip" id="modalVisitedChip" style="display:none;">✅ 스탬프 완료</span>
-        <p id="modalDesc">매장 상세 설명이 여기에 들어갑니다.</p>
-        <div class="modal-info-box">
-            <div><span class="label">📍 주소</span><span id="modalAddress"></span></div>
-            <div><span class="label">📞 전화</span><span id="modalPhone"></span>
-                <a href="#" id="modalPhoneBtn" class="phone-link">전화걸기</a>
-            </div>
-        </div>
-        <div class="modal-buttons">
-            <button class="modal-close-btn" onclick="closeModal()">닫기</button>
-        </div>
-    </div>
-</div>
-
-<!-- 포인트 사용 -->
-<div class="overlay" id="redeemOverlay" onclick="closeRedeemOnBg(event)">
-    <div class="modal">
-        <div id="redeemForm">
-            <div class="modal-icon">🎟️</div>
-            <h3>포인트 사용하기</h3>
-            <p>사용할 포인트를 입력하면 매장에서 확인 가능한 6자리 코드가 발급돼요.</p>
-            <input id="redeemAmount" type="number" placeholder="사용할 포인트" style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);font-size:16px;margin-bottom:16px;">
-            <div class="modal-buttons">
-                <button class="modal-close-btn" onclick="closeRedeem()">닫기</button>
-                <button class="modal-btn" onclick="submitRedeem()">코드 발급</button>
-            </div>
-        </div>
-        <div id="redeemResult" style="display:none;">
-            <div class="modal-icon">✅</div>
-            <h3>발급 완료</h3>
-            <p>이 코드를 매장 직원에게 보여주세요.</p>
-            <div class="redeem-code-display" id="redeemCodeDisplay">000000</div>
-            <div class="modal-buttons">
-                <button class="modal-btn" onclick="closeRedeem()">확인</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- QR 스캐너 -->
-<div class="scan-overlay" id="scanOverlay">
-    <video id="scanVideo" playsinline muted autoplay></video>
-    <button class="scan-close" onclick="closeScanner()">닫기 ✕</button>
-    <div class="scan-frame"></div>
-    <div class="scan-hint">매장 QR을 사각형 안에 맞춰주세요</div>
-    <canvas id="scanCanvas" style="display:none;"></canvas>
+<div class="card" id="mainScreen" style="display:none;">
+    <h1>🎟️ 포인트 사용 확인</h1>
+    <p class="sub">손님이 보여준 6자리 코드를 입력하세요</p>
+    <input id="codeInput" inputmode="numeric" maxlength="6" placeholder="123456">
+    <button class="btn-primary" onclick="redeem()">사용 처리</button>
+    <button class="btn-danger" onclick="cancelCode()">코드 취소(환불)</button>
+    <div class="result" id="result"></div>
 </div>
 
 <script>
-    // ⚠️ 설정: Supabase 프로젝트 생성 후 아래 두 값을 반드시 채워주세요.
+    // ⚠️ 설정: index.html과 동일한 값을 넣어주세요.
     const SUPABASE_URL = 'https://qalucfueixjcjqmwidhb.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_JFgZSVFcTmLASSHCaErC5w_tqGHZsZh';
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 지도 마커 위치 (매장 "이름"으로 매칭 — DB에서 반환되는 순서와 무관하게 항상 정확함)
-    const POSITIONS = {
-        '청춘당꽈배기':      {left:'12.5%', top:'47.8%'},
-        '기억제주맛집':      {left:'18.9%', top:'50.5%'},
-        '김녕빵집':          {left:'23.9%', top:'45.9%'},
-        '김녕에사는김영훈':   {left:'23.6%', top:'54.8%'},
-        '김녕옥상회':        {left:'29.7%', top:'41.1%'},
-        '제프버거':          {left:'29.2%', top:'48.7%'},
-        '본초불닭발':        {left:'29.0%', top:'56.4%'},
-        '스페샬펜션':        {left:'29.2%', top:'65.5%'},
-        '매코롬':            {left:'33.6%', top:'56.5%'},
-        '김녕챗':            {left:'33.5%', top:'37.1%'},
-        '김녕서랍':          {left:'37.4%', top:'41.3%'},
-        '김녕소품샵':        {left:'35.5%', top:'48.5%'},
-        '한라식당':          {left:'42.3%', top:'38.0%'},
-        '영월갈비':          {left:'41.9%', top:'47.1%'},
-        '청굴식당':          {left:'42.7%', top:'55.4%'},
-        '인수네':            {left:'46.9%', top:'41.8%'},
-        '신미식당':          {left:'47.3%', top:'51.7%'},
-        '으뜸원':            {left:'53.3%', top:'37.6%'},
-        'BHC':               {left:'53.4%', top:'49.6%'},
-        '파란소리':          {left:'58.4%', top:'37.9%'},
-        '씨유':              {left:'55.8%', top:'58.4%'},
-        '킹마트':            {left:'60.8%', top:'46.6%'},
-        '더벤티':            {left:'63.8%', top:'53.4%'},
-        '김녕홀리다':        {left:'66.4%', top:'44.9%'},
-        '대복해장국':        {left:'74.0%', top:'41.5%'},
-        '모산봉':            {left:'78.9%', top:'39.6%'},
-        '김녕나루터':        {left:'84.4%', top:'31.8%'}
-    };
+    let staffPin = sessionStorage.getItem('staff_pin') || '';
+    if (staffPin) showMain();
 
-    let session = JSON.parse(localStorage.getItem('gny_session') || 'null');
-    let storesData = [];
-    let myStamps = new Set();
-    let myBalance = 0;
-
-    // ===== 지도 전용 핀치 줌 / 팬 (페이지 전체 확대와는 분리) =====
-    (function initMapZoom() {
-        const wrap = document.getElementById('mapWrap');
-        const layer = document.getElementById('mapZoomLayer');
-        const zoomBtn = document.getElementById('zoomResetBtn');
-        const MIN_SCALE = 1, MAX_SCALE = 3.5;
-        let scale = 1, tx = 0, ty = 0;
-        let mode = null, moved = false, suppressClick = false;
-        let pinch = null, pan = null;
-        let lastTapTime = 0, lastTapPos = null;
-
-        function applyTransform() { layer.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; }
-        function clampPan() {
-            const rect = wrap.getBoundingClientRect();
-            if (scale <= 1) { tx = 0; ty = 0; return; }
-            const minX = rect.width - rect.width * scale;
-            const minY = rect.height - rect.height * scale;
-            tx = Math.min(0, Math.max(minX, tx));
-            ty = Math.min(0, Math.max(minY, ty));
-        }
-        function updateZoomBtn() { zoomBtn.classList.toggle('visible', scale > 1.02); }
-        function dist(p1,p2){ return Math.hypot(p1.x-p2.x, p1.y-p2.y); }
-        function mid(p1,p2){ return {x:(p1.x+p2.x)/2, y:(p1.y+p2.y)/2}; }
-        function pointFromTouch(t){ return {x:t.clientX, y:t.clientY}; }
-
-        window.resetZoom = function () {
-            layer.style.transition = 'transform 0.3s ease';
-            scale = 1; tx = 0; ty = 0;
-            applyTransform(); updateZoomBtn();
-            setTimeout(() => { layer.style.transition = ''; }, 300);
-        };
-
-        function toggleZoom(clientX, clientY) {
-            const rect = wrap.getBoundingClientRect();
-            layer.style.transition = 'transform 0.3s ease';
-            if (scale > 1.02) { scale = 1; tx = 0; ty = 0; }
-            else {
-                const targetScale = 2.2;
-                const mx = clientX - rect.left, my = clientY - rect.top;
-                const contentX = (mx - tx) / scale, contentY = (my - ty) / scale;
-                scale = targetScale;
-                tx = mx - scale * contentX; ty = my - scale * contentY;
-                clampPan();
-            }
-            applyTransform(); updateZoomBtn();
-            setTimeout(() => { layer.style.transition = ''; }, 300);
-        }
-
-        wrap.addEventListener('touchstart', (e) => {
-            moved = false; layer.style.transition = '';
-            if (e.touches.length === 2) {
-                mode = 'pinch';
-                const rect = wrap.getBoundingClientRect();
-                const p1 = pointFromTouch(e.touches[0]), p2 = pointFromTouch(e.touches[1]);
-                const m0 = mid(p1,p2);
-                const mx0 = m0.x - rect.left, my0 = m0.y - rect.top;
-                pinch = { startDist: dist(p1,p2), startScale: scale,
-                          contentX: (mx0-tx)/scale, contentY: (my0-ty)/scale,
-                          rectLeft: rect.left, rectTop: rect.top };
-            } else if (e.touches.length === 1) {
-                const t = e.touches[0];
-                mode = scale > 1.02 ? 'pan' : 'tap';
-                pan = { startX: t.clientX, startY: t.clientY, startTx: tx, startTy: ty };
-                const now = Date.now();
-                if (lastTapPos && now - lastTapTime < 320 &&
-                    Math.hypot(t.clientX-lastTapPos.x, t.clientY-lastTapPos.y) < 30) {
-                    toggleZoom(t.clientX, t.clientY);
-                    lastTapTime = 0; lastTapPos = null;
-                } else {
-                    lastTapTime = now; lastTapPos = { x:t.clientX, y:t.clientY };
-                }
-            }
-        }, { passive: true });
-
-        wrap.addEventListener('touchmove', (e) => {
-            if (mode === 'pinch' && e.touches.length === 2 && pinch) {
-                e.preventDefault();
-                const p1 = pointFromTouch(e.touches[0]), p2 = pointFromTouch(e.touches[1]);
-                const d = dist(p1,p2);
-                let newScale = pinch.startScale * (d / pinch.startDist);
-                newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale));
-                const m = mid(p1,p2);
-                const mx = m.x - pinch.rectLeft, my = m.y - pinch.rectTop;
-                scale = newScale;
-                tx = mx - scale*pinch.contentX; ty = my - scale*pinch.contentY;
-                clampPan(); applyTransform(); updateZoomBtn();
-                moved = true;
-            } else if (mode === 'pan' && e.touches.length === 1 && pan) {
-                const t = e.touches[0];
-                const dx = t.clientX - pan.startX, dy = t.clientY - pan.startY;
-                if (Math.hypot(dx,dy) > 6) {
-                    e.preventDefault(); moved = true;
-                    tx = pan.startTx + dx; ty = pan.startTy + dy;
-                    clampPan(); applyTransform();
-                }
-            }
-        }, { passive: false });
-
-        wrap.addEventListener('touchend', () => {
-            if (moved) { suppressClick = true; setTimeout(() => { suppressClick = false; }, 300); }
-            mode = null; pinch = null; pan = null;
-        });
-
-        wrap.addEventListener('click', (e) => {
-            if (suppressClick) { e.stopPropagation(); e.preventDefault(); }
-        }, true);
-    })();
-
-    // ---------- 부팅 ----------
-    async function boot() {
-        const params = new URLSearchParams(location.search);
-        const pendingCheckin = params.get('checkin');
-        if (pendingCheckin) sessionStorage.setItem('pending_checkin', pendingCheckin);
-
-        if (session) {
-            document.getElementById('authOverlay').classList.remove('show');
-            await enterApp();
-        }
+    function unlock() {
+        const pin = document.getElementById('pinInput').value.trim();
+        if (!pin) return;
+        staffPin = pin;
+        sessionStorage.setItem('staff_pin', pin);
+        showMain();
+    }
+    function showMain() {
+        document.getElementById('lockScreen').style.display = 'none';
+        document.getElementById('mainScreen').style.display = '';
+    }
+    function showResult(ok, text) {
+        const el = document.getElementById('result');
+        el.className = 'result ' + (ok ? 'ok' : 'err');
+        el.innerText = text;
     }
 
-    async function enterApp() {
-        document.getElementById('mainApp').style.display = '';
-        document.getElementById('fabScan').style.display = '';
-        await loadStores();
-        const ok = await refreshStatus();
-        if (ok) maybeCompletePendingCheckin();
-    }
-
-    // ---------- 회원가입 ----------
-    async function handleSignup() {
-        const name = document.getElementById('authName').value.trim();
-        const phone = document.getElementById('authPhone').value.trim();
-        if (!name) { alert('이름을 입력해주세요.'); return; }
-        if (phone.replace(/[^0-9]/g,'').length < 9) { alert('전화번호를 정확히 입력해주세요.'); return; }
-
-        const { data, error } = await sb.rpc('signup_or_login', { p_phone: phone, p_name: name });
-        if (error) { alert('가입에 실패했어요: ' + error.message); return; }
-
-        session = { member_id: data.member_id, session_token: data.session_token, name: data.name, phone: data.phone };
-        localStorage.setItem('gny_session', JSON.stringify(session));
-        document.getElementById('authOverlay').classList.remove('show');
-        await enterApp();
-    }
-
-    function logout() {
-        if (!confirm('로그아웃하면 이 기기에서 다시 전화번호로 로그인해야 해요. 계속할까요?')) return;
-        localStorage.removeItem('gny_session');
-        location.reload();
-    }
-
-    // ---------- 매장 목록 ----------
-    async function loadStores() {
-        const { data, error } = await sb.from('stores_public').select('*').order('id');
-        if (error) { alert('매장 목록을 불러오지 못했어요.'); return; }
-        storesData = data.map(s => {
-            const pos = POSITIONS[s.name];
-            if (!pos) console.warn(`좌표 매핑 없음: "${s.name}" — POSITIONS에 이름을 추가해주세요.`);
-            return { ...s, ...(pos || { left: '50%', top: '50%' }) };
-        });
-        document.getElementById('stampTotalNum').innerText = storesData.length;
-        renderMarkers();
-    }
-
-    function renderMarkers() {
-        const host = document.getElementById('markersHost');
-        host.innerHTML = '';
-        storesData.forEach(store => {
-            const trigger = document.createElement('div');
-            trigger.className = 'spot-trigger';
-            trigger.style.left = store.left;
-            trigger.style.top = store.top;
-            trigger.onclick = () => openStoreModal(store.id);
-            host.appendChild(trigger);
-
-            const badge = document.createElement('div');
-            badge.className = 'visited-badge';
-            badge.id = 'badge-' + store.id;
-            badge.style.left = store.left;
-            badge.style.top = store.top;
-            badge.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 10 18 20 6"></polyline></svg>';
-            host.appendChild(badge);
-        });
-        renderVisitedBadges();
-    }
-
-    function renderVisitedBadges() {
-        storesData.forEach(store => {
-            const el = document.getElementById('badge-' + store.id);
-            if (el) el.classList.toggle('show', myStamps.has(store.id));
-        });
-    }
-
-    // ---------- 상태 조회 ----------
-    async function refreshStatus() {
-        const { data, error } = await sb.rpc('get_status', { p_session_token: session.session_token });
+    async function redeem() {
+        const code = document.getElementById('codeInput').value.trim();
+        if (code.length !== 6) { showResult(false, '6자리 코드를 입력해주세요.'); return; }
+        const { data, error } = await sb.rpc('staff_redeem_code', { p_staff_pin: staffPin, p_code: code });
         if (error) {
-            alert('세션이 만료됐어요. 다시 로그인해주세요.');
-            localStorage.removeItem('gny_session');
-            location.reload();
-            return false;
-        }
-        myStamps = new Set(data.stamped_store_ids);
-        myBalance = data.balance;
-
-        document.getElementById('memberName').innerText = data.name;
-        document.getElementById('pointBalance').innerText = myBalance.toLocaleString();
-        document.getElementById('stampCountNum').innerText = myStamps.size;
-        const total = storesData.length || 27;
-        document.getElementById('progressFill').style.width = Math.round((myStamps.size/total)*100) + '%';
-
-        const milestone = Math.min(5, myStamps.size);
-        for (let i=0;i<5;i++){
-            document.getElementById('stamp'+i).classList.toggle('active', i < milestone);
-        }
-        renderVisitedBadges();
-        return true;
-    }
-
-    // ---------- 매장 정보 모달 ----------
-    function openStoreModal(storeId) {
-        const store = storesData.find(s => s.id === storeId);
-        if (!store) return;
-        document.getElementById('modalTitle').innerText = store.name;
-        document.getElementById('modalCategory').innerText = store.category || '매장';
-        document.getElementById('modalDesc').innerText = store.description || '상세 정보 준비 중입니다.';
-        document.getElementById('modalAddress').innerText = store.address || '정보 없음';
-        document.getElementById('modalVisitedChip').style.display = myStamps.has(storeId) ? 'inline-block' : 'none';
-
-        const phoneBtn = document.getElementById('modalPhoneBtn');
-        if (store.phone && store.phone.trim() !== '') {
-            document.getElementById('modalPhone').innerText = store.phone;
-            phoneBtn.setAttribute('href', `tel:${store.phone.replace(/[^0-9]/g,'')}`);
-            phoneBtn.style.display = 'inline-flex';
-        } else {
-            document.getElementById('modalPhone').innerText = '등록 정보 없음';
-            phoneBtn.style.display = 'none';
-        }
-        document.getElementById('modalOverlay').classList.add('show');
-    }
-    function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
-    function closeModalOnBg(e) { if (e.target.id === 'modalOverlay') closeModal(); }
-
-    // ---------- QR 스캐너 ----------
-    let scanStream = null;
-    let scanning = false;
-
-    async function openScanner() {
-        document.getElementById('scanOverlay').classList.add('show');
-        scanning = true;
-        try {
-            scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        } catch (e) {
-            alert('카메라를 사용할 수 없어요. 브라우저 카메라 권한을 확인해주세요.');
-            closeScanner();
+            if (error.message.includes('INVALID_PIN')) { sessionStorage.removeItem('staff_pin'); location.reload(); return; }
+            showResult(false, '처리 실패: ' + error.message);
             return;
         }
-        const video = document.getElementById('scanVideo');
-        video.srcObject = scanStream;
-        await video.play();
-        requestAnimationFrame(scanLoop);
+        showResult(true, `✅ ${data.member_name}님 · ${data.points.toLocaleString()}P 사용 처리 완료`);
+        document.getElementById('codeInput').value = '';
     }
 
-    function closeScanner() {
-        scanning = false;
-        document.getElementById('scanOverlay').classList.remove('show');
-        if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
-    }
-
-    function scanLoop() {
-        if (!scanning) return;
-        const video = document.getElementById('scanVideo');
-        const canvas = document.getElementById('scanCanvas');
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height);
-            if (code) {
-                const token = extractToken(code.data);
-                closeScanner();
-                doCheckin(token);
-                return;
-            }
-        }
-        requestAnimationFrame(scanLoop);
-    }
-
-    function extractToken(text) {
-        try {
-            const url = new URL(text);
-            const t = url.searchParams.get('checkin');
-            if (t) return t;
-        } catch (e) { /* not a URL, treat as raw token */ }
-        return text.trim();
-    }
-
-    async function doCheckin(token) {
-        const { data, error } = await sb.rpc('checkin_store', { p_session_token: session.session_token, p_qr_token: token });
+    async function cancelCode() {
+        const code = document.getElementById('codeInput').value.trim();
+        if (code.length !== 6) { showResult(false, '6자리 코드를 입력해주세요.'); return; }
+        if (!confirm('이 코드를 취소(환불) 처리할까요?')) return;
+        const { data, error } = await sb.rpc('staff_cancel_code', { p_staff_pin: staffPin, p_code: code });
         if (error) {
-            if (error.message && error.message.includes('INVALID_QR')) {
-                alert('인식할 수 없는 QR이에요. 매장 QR이 맞는지 확인해주세요.');
-            } else {
-                alert('처리 중 문제가 발생했어요: ' + error.message);
-            }
+            if (error.message.includes('INVALID_PIN')) { sessionStorage.removeItem('staff_pin'); location.reload(); return; }
+            showResult(false, '처리 실패: ' + error.message);
             return;
         }
-        if (data.already) {
-            alert(`이미 [${data.store_name}] 스탬프를 받으셨어요.`);
-        } else {
-            alert(`🍊 [${data.store_name}] 도장 획득! +${data.points_earned}P`);
-        }
-        await refreshStatus();
+        showResult(true, '↩️ 코드가 취소되고 포인트가 환불됐어요.');
+        document.getElementById('codeInput').value = '';
     }
-
-    function maybeCompletePendingCheckin() {
-        const token = sessionStorage.getItem('pending_checkin');
-        if (token) {
-            sessionStorage.removeItem('pending_checkin');
-            doCheckin(token);
-        }
-    }
-
-    // ---------- 포인트 사용 ----------
-    function openRedeem() {
-        document.getElementById('redeemForm').style.display = '';
-        document.getElementById('redeemResult').style.display = 'none';
-        document.getElementById('redeemAmount').value = '';
-        document.getElementById('redeemOverlay').classList.add('show');
-    }
-    function closeRedeem() { document.getElementById('redeemOverlay').classList.remove('show'); }
-    function closeRedeemOnBg(e) { if (e.target.id === 'redeemOverlay') closeRedeem(); }
-
-    async function submitRedeem() {
-        const amount = parseInt(document.getElementById('redeemAmount').value, 10);
-        if (!amount || amount <= 0) { alert('사용할 포인트를 입력해주세요.'); return; }
-        if (amount > myBalance) { alert(`보유 포인트(${myBalance.toLocaleString()}P)보다 많아요.`); return; }
-
-        const { data, error } = await sb.rpc('request_redeem', { p_session_token: session.session_token, p_points: amount });
-        if (error) { alert('코드 발급에 실패했어요: ' + error.message); return; }
-
-        document.getElementById('redeemCodeDisplay').innerText = data.code;
-        document.getElementById('redeemForm').style.display = 'none';
-        document.getElementById('redeemResult').style.display = '';
-        await refreshStatus();
-    }
-
-    boot();
 </script>
 </body>
 </html>
