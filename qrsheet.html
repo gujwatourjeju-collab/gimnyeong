@@ -6,6 +6,7 @@
 <title>매장 QR 인쇄 시트</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, sans-serif; background:#eef3f1; margin:0; padding:24px; }
@@ -35,6 +36,7 @@
     <div>총 <span id="countLabel">0</span>개 매장 QR</div>
     <button onclick="window.print()">🖨️ 인쇄하기</button>
 </div>
+<div id="errorBanner" style="display:none; max-width:1200px; margin:0 auto 16px; background:#fdeceb; color:#c0392b; padding:14px 18px; border-radius:12px; font-size:13.5px;"></div>
 <div class="grid" id="grid"></div>
 
 <script>
@@ -53,26 +55,48 @@
         document.getElementById('toolbar').style.display = '';
         document.getElementById('countLabel').innerText = data.length;
 
+        if (typeof QRCode === 'undefined') {
+            showError('QR 생성 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침 해주세요. (Wi-Fi/방화벽이 CDN을 막고 있을 수 있어요)');
+            return;
+        }
+
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
-        data.forEach(store => {
-            const card = document.createElement('div');
-            card.className = 'qr-card';
-            const canvas = document.createElement('canvas');
-            card.appendChild(canvas);
-            const nameEl = document.createElement('div');
-            nameEl.className = 'name';
-            nameEl.innerText = store.name;
-            card.appendChild(nameEl);
-            const idEl = document.createElement('div');
-            idEl.className = 'id';
-            idEl.innerText = 'No. ' + store.id;
-            card.appendChild(idEl);
-            grid.appendChild(card);
+        let failCount = 0;
 
-            const url = `${APP_BASE_URL}/?checkin=${store.qr_token}`;
-            QRCode.toCanvas(canvas, url, { width: 220, margin: 1, color: { dark: '#1b2422', light: '#ffffff' } });
-        });
+        for (const store of data) {
+            try {
+                const card = document.createElement('div');
+                card.className = 'qr-card';
+                const canvas = document.createElement('canvas');
+                card.appendChild(canvas);
+                const nameEl = document.createElement('div');
+                nameEl.className = 'name';
+                nameEl.innerText = store.name;
+                card.appendChild(nameEl);
+                const idEl = document.createElement('div');
+                idEl.className = 'id';
+                idEl.innerText = 'No. ' + store.id;
+                card.appendChild(idEl);
+                grid.appendChild(card);
+
+                const url = `${APP_BASE_URL}/?checkin=${store.qr_token}`;
+                await QRCode.toCanvas(canvas, url, { width: 220, margin: 1, color: { dark: '#1b2422', light: '#ffffff' } });
+            } catch (e) {
+                failCount++;
+                console.error('QR 생성 실패:', store.name, e);
+            }
+        }
+
+        if (failCount > 0) {
+            showError(`${failCount}개 매장의 QR 생성에 실패했어요. 콘솔(F12)에서 자세한 에러를 확인해주세요.`);
+        }
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('errorBanner');
+        el.style.display = 'block';
+        el.innerText = '⚠️ ' + msg;
     }
 </script>
 </body>
