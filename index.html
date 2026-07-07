@@ -8,457 +8,208 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
         :root {
-            --sea: #01b2ad;
-            --sea-dark: #017a76;
-            --sea-light: #e6f7f6;
-            --tangerine: #ff8c42;
-            --tangerine-dark: #e06a1f;
-            --paper: #fbf6ea;
-            --ink: #1b2422;
-            --ink-soft: #667572;
-            --line: #e6ddc8;
-            --bg: #eef3f1;
-            --radius-lg: 22px;
-            --radius-md: 12px;
-            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
+            --sea: #01b2ad; --sea-dark: #017a76; --sea-light: #e6f7f6;
+            --tangerine: #ff8c42; --tangerine-dark: #e06a1f;
+            --paper: #fbf6ea; --ink: #1b2422; --ink-soft: #667572; --line: #e6ddc8; --bg: #eef3f1;
+            --radius-lg: 22px; --radius-md: 12px;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.05); --shadow-lg: 0 20px 40px rgba(0,0,0,0.12);
         }
-
         * { box-sizing: border-box; }
-
         body {
-            font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg);
-            background-image:
-                radial-gradient(circle at 6% 12%, rgba(1,178,173,0.07) 0%, transparent 40%),
-                radial-gradient(circle at 94% 88%, rgba(255,140,66,0.08) 0%, transparent 40%);
-            color: var(--ink);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            touch-action: pan-x pan-y;
+            font-family: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+            margin: 0; padding: 0; background-color: var(--bg);
+            background-image: radial-gradient(circle at 6% 12%, rgba(1,178,173,0.07) 0%, transparent 40%),
+                               radial-gradient(circle at 94% 88%, rgba(255,140,66,0.08) 0%, transparent 40%);
+            color: var(--ink); display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; -webkit-font-smoothing: antialiased;
         }
+        .app-container { width: 100%; max-width: 1000px; padding: 22px 16px 40px; box-sizing: border-box; text-align: center; }
 
-        .app-container {
-            width: 100%;
-            max-width: 1000px;
-            padding: 22px 16px 32px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        /* ===== 여권 스탬프 컨셉 히어로 ===== */
-        .passport-hero {
-            margin-bottom: 20px;
-        }
+        /* ===== 여권 히어로 ===== */
+        .passport-hero { margin-bottom: 20px; }
         .passport-frame {
-            position: relative;
-            background-color: var(--paper);
-            background-image:
-                repeating-linear-gradient(135deg, rgba(1,178,173,0.035) 0px, rgba(1,178,173,0.035) 1px, transparent 1px, transparent 14px);
-            border: 1.5px dashed var(--sea);
-            border-radius: var(--radius-lg);
-            padding: 26px 22px 22px;
-            box-shadow: 0 10px 26px rgba(1, 178, 173, 0.10);
+            position: relative; background-color: var(--paper);
+            background-image: repeating-linear-gradient(135deg, rgba(1,178,173,0.035) 0px, rgba(1,178,173,0.035) 1px, transparent 1px, transparent 14px);
+            border: 1.5px dashed var(--sea); border-radius: var(--radius-lg);
+            padding: 26px 22px 22px; box-shadow: 0 10px 26px rgba(1,178,173,0.10);
         }
         .corner-stamp {
-            position: absolute;
-            top: -18px;
-            right: 16px;
-            width: 66px;
-            height: 66px;
-            border-radius: 50%;
-            border: 2px solid var(--tangerine);
-            background: rgba(255, 255, 255, 0.92);
-            transform: rotate(-13deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            line-height: 1.15;
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 0.4px;
-            color: var(--tangerine-dark);
+            position: absolute; top: -18px; right: 16px; width: 66px; height: 66px; border-radius: 50%;
+            border: 2px solid var(--tangerine); background: rgba(255,255,255,0.92); transform: rotate(-13deg);
+            display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.15;
+            font-size: 9px; font-weight: 800; letter-spacing: 0.4px; color: var(--tangerine-dark);
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
         }
-        .passport-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 14px;
-        }
+        .passport-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
         .passport-eyebrow {
-            font-size: 10.5px;
-            font-weight: 700;
-            letter-spacing: 1.4px;
-            color: var(--sea-dark);
-            background: var(--sea-light);
-            padding: 5px 10px;
-            border-radius: 30px;
+            font-size: 10.5px; font-weight: 700; letter-spacing: 1.4px; color: var(--sea-dark);
+            background: var(--sea-light); padding: 5px 10px; border-radius: 30px;
         }
-        .passport-serial {
-            font-size: 10.5px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            color: var(--ink-soft);
-            font-variant-numeric: tabular-nums;
-        }
+        .passport-serial { font-size: 10.5px; font-weight: 600; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
         .passport-frame h1 {
-            font-family: 'Gowun Batang', serif;
-            font-size: 23px;
-            font-weight: 700;
-            line-height: 1.35;
-            margin: 0 0 10px 0;
-            color: var(--ink);
-            letter-spacing: -0.2px;
+            font-family: 'Gowun Batang', serif; font-size: 22px; font-weight: 700; line-height: 1.35;
+            margin: 0 0 8px 0; color: var(--ink); letter-spacing: -0.2px;
         }
-        .passport-desc {
-            font-size: 13.5px;
-            color: var(--ink-soft);
-            line-height: 1.6;
-            margin: 0;
-            font-weight: 500;
-        }
+        .passport-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin: 0; font-weight: 500; }
 
-        .stamp-progress {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            margin-top: 20px;
-            padding-top: 18px;
-            border-top: 1px dashed var(--line);
-            flex-wrap: wrap;
+        .member-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line);
         }
-        .stamp-slot {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 1.5px dashed var(--line);
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            opacity: 0.32;
-            transform: scale(0.92);
-            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .member-greet { text-align: left; font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+        .member-greet strong { color: var(--ink); font-size: 14.5px; }
+        .point-badge { font-size: 12.5px; font-weight: 700; color: var(--tangerine-dark); }
+        .point-badge strong { font-size: 17px; }
+        .redeem-btn {
+            background: var(--ink); color: #fff; border: none; padding: 8px 14px; border-radius: 30px;
+            font-size: 12px; font-weight: 700; cursor: pointer;
         }
-        .stamp-slot.filled {
-            opacity: 1;
-            transform: scale(1) rotate(-8deg);
-            border-style: solid;
-            border-color: var(--tangerine);
-            background: #fff6ec;
-            box-shadow: 0 3px 8px rgba(255, 140, 66, 0.25);
-        }
-        .stamp-count {
-            margin-left: 6px;
-            font-size: 12.5px;
-            font-weight: 700;
-            color: var(--ink-soft);
-            white-space: nowrap;
-        }
-        .stamp-count strong {
-            font-size: 16px;
-            color: var(--tangerine-dark);
-        }
+        .stamp-summary { margin-top: 12px; font-size: 12.5px; color: var(--ink-soft); font-weight: 700; }
+        .stamp-summary strong { color: var(--tangerine-dark); font-size: 15px; }
+        .progress-track { width: 100%; height: 7px; background: #efe8d6; border-radius: 10px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; background: var(--tangerine); border-radius: 10px; transition: width 0.4s ease; width: 0%; }
 
-        /* ===== 지도 (카카오톡 인앱 브라우저 호환: padding-bottom 방식) ===== */
+        /* ===== 지도 ===== */
         .map-wrap {
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-bottom: 70%; /* 900:630 비율 */
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-            background-color: #fff;
+            position: relative; width: 100%; height: 0; padding-bottom: 70%;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; background-color: #fff;
         }
-        .map-zoom-layer {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            transform-origin: 0 0;
-            will-change: transform;
-        }
-        .map-bg-image {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('map-bg.png');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-        }
-
-        .map-caption {
-            font-size: 11.5px;
-            color: var(--ink-soft);
-            margin-top: 10px;
-            font-weight: 600;
-            opacity: 0.75;
-        }
-
+        .map-zoom-layer { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 0 0; will-change: transform; }
+        .map-bg-image { position: absolute; inset: 0; width: 100%; height: 100%; background-image: url('map-bg.png'); background-size: 100% 100%; background-repeat: no-repeat; }
+        .map-caption { font-size: 11.5px; color: var(--ink-soft); margin-top: 10px; font-weight: 600; opacity: 0.75; }
         .zoom-reset-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 30;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10.5px;
-            font-weight: 800;
-            color: var(--ink-soft);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
+            position: absolute; top: 10px; right: 10px; z-index: 30; width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255,255,255,0.95); box-shadow: var(--shadow-sm); display: flex; align-items: center;
+            justify-content: center; font-size: 10.5px; font-weight: 800; color: var(--ink-soft);
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
         }
-        .zoom-reset-btn.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .zoom-reset-btn.visible { opacity: 1; pointer-events: auto; }
 
         .spot-trigger {
-            position: absolute;
-            width: 4.5%;
-            height: 6.5%;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            z-index: 10;
+            position: absolute; width: 4.5%; height: 6.5%; transform: translate(-50%,-50%);
+            border-radius: 50%; background-color: transparent; border: none; cursor: pointer; z-index: 10;
             -webkit-tap-highlight-color: transparent;
         }
+        .visited-badge {
+            position: absolute; width: 16px; height: 16px; transform: translate(40%,-120%);
+            background: var(--tangerine); color: #fff; border-radius: 50%; font-size: 10px;
+            display: none; align-items: center; justify-content: center; z-index: 15;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25); pointer-events: none;
+        }
+        .visited-badge.show { display: flex; }
 
         .stamp-layer {
-            position: absolute;
-            width: 7.5%;
-            height: 10.5%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 34px;
-            pointer-events: none;
-            opacity: 0;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-            z-index: 20;
+            position: absolute; width: 7.5%; height: 10.5%; transform: translate(-50%,-50%);
+            display: flex; align-items: center; justify-content: center; font-size: 34px; pointer-events: none;
+            opacity: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s ease; z-index: 20;
         }
-        .stamp-layer.active {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1) rotate(-12deg);
-        }
+        .stamp-layer.active { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(-12deg); }
 
-        /* ===== 모달 ===== */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(15, 26, 24, 0.45);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 100;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
+        .fab-scan {
+            position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 60;
+            background: var(--sea); color: #fff; border: none; padding: 14px 26px; border-radius: 40px;
+            font-size: 14.5px; font-weight: 800; box-shadow: 0 10px 24px rgba(1,178,173,0.4); cursor: pointer;
         }
-        .modal-overlay.show {
-            display: flex;
-            opacity: 1;
-        }
-
-        .modal {
-            background: white;
-            padding: 26px 26px 24px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            width: 100%;
-            max-width: 380px;
-            box-sizing: border-box;
-            text-align: left;
-            transform: translateY(20px);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-        }
-        .modal-overlay.show .modal {
-            transform: translateY(0);
-        }
-
-        .modal-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--sea-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            margin-bottom: 12px;
-        }
-
-        .modal h3 {
-            margin: 0 0 6px 0;
-            font-size: 21px;
-            font-weight: 700;
-            color: var(--ink);
-        }
-        .modal-meta {
-            font-size: 12.5px;
-            color: var(--sea-dark);
-            font-weight: 700;
-            background-color: var(--sea-light);
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 30px;
-            margin-bottom: 16px;
-        }
-        .modal p {
-            margin: 0 0 20px 0;
-            font-size: 13.5px;
-            color: var(--ink-soft);
-            line-height: 1.65;
-            white-space: pre-line;
-        }
-
-        .modal-info-box {
-            background-color: #f7faf9;
-            padding: 15px 16px;
-            border-radius: var(--radius-md);
-            margin-bottom: 22px;
-            font-size: 13px;
-            color: #4a5251;
-            border: 1px solid #eef2f1;
-        }
-        .modal-info-box div {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        .modal-info-box div:last-child { margin-bottom: 0; }
-        .modal-info-box span.label {
-            font-weight: 700;
-            color: var(--ink);
-            width: 50px;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-        .modal-info-box span.val {
-            line-height: 1.4;
-        }
-
-        .phone-link {
-            display: inline-flex;
-            align-items: center;
-            color: var(--sea-dark);
-            text-decoration: none;
-            font-weight: 700;
-            background: #fff;
-            border: 1px solid #d6efed;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            margin-left: auto;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s;
-        }
-        .phone-link:active {
-            background-color: var(--sea);
-            color: white;
-            border-color: var(--sea);
-        }
-
-        .modal-buttons { display: flex; gap: 10px; }
-        .modal-btn {
-            background: var(--sea);
-            color: white;
-            border: none;
-            padding: 14px;
-            width: 65%;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            cursor: pointer;
-            text-align: center;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(1, 178, 173, 0.25);
-            transition: background 0.2s;
-        }
-        .modal-btn:active { background: var(--sea-dark); }
-        .modal-close-btn {
-            background: #f0f3f2;
-            color: var(--ink-soft);
-            border: none;
-            padding: 14px;
-            width: 35%;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            cursor: pointer;
-            text-align: center;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-        .modal-close-btn:active { background: #e2e7e6; }
 
         .reset-btn {
-            margin-top: 22px;
-            padding: 12px 22px;
-            background: transparent;
-            border: 1.5px dashed var(--line);
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 700;
-            color: var(--ink-soft);
-            font-size: 12.5px;
-            letter-spacing: 0.2px;
-            transition: all 0.2s;
+            margin-top: 22px; padding: 12px 22px; background: transparent; border: 1.5px dashed var(--line);
+            border-radius: 30px; cursor: pointer; font-weight: 700; color: var(--ink-soft); font-size: 12.5px;
         }
-        .reset-btn:active { background: #fff; color: var(--ink); border-color: var(--sea); }
 
+        /* ===== 모달 공통 ===== */
+        .overlay {
+            position: fixed; inset: 0; background-color: rgba(15,26,24,0.5); backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px); z-index: 100; display: none; opacity: 0; transition: opacity 0.3s ease;
+            justify-content: center; align-items: center; padding: 16px;
+        }
+        .overlay.show { display: flex; opacity: 1; }
+        .modal {
+            background: white; padding: 26px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+            width: 100%; max-width: 380px; box-sizing: border-box; text-align: left;
+            transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); position: relative;
+        }
+        .overlay.show .modal { transform: translateY(0); }
+        .modal-icon {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--sea-light);
+            display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;
+        }
+        .modal h3 { margin: 0 0 6px 0; font-size: 21px; font-weight: 700; color: var(--ink); }
+        .modal-meta {
+            font-size: 12.5px; color: var(--sea-dark); font-weight: 700; background-color: var(--sea-light);
+            display: inline-block; padding: 4px 10px; border-radius: 30px; margin-bottom: 12px;
+        }
+        .visited-chip {
+            font-size: 12px; font-weight: 700; color: var(--tangerine-dark); background: #fff3e8;
+            display: inline-block; padding: 4px 10px; border-radius: 30px; margin: 0 0 12px 8px;
+        }
+        .modal p { margin: 0 0 20px 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.65; white-space: pre-line; }
+        .modal-info-box {
+            background-color: #f7faf9; padding: 15px 16px; border-radius: var(--radius-md); margin-bottom: 22px;
+            font-size: 13px; color: #4a5251; border: 1px solid #eef2f1;
+        }
+        .modal-info-box div { display: flex; align-items: flex-start; margin-bottom: 10px; }
+        .modal-info-box div:last-child { margin-bottom: 0; }
+        .modal-info-box span.label { font-weight: 700; color: var(--ink); width: 50px; flex-shrink: 0; margin-top: 1px; }
+        .phone-link {
+            display: inline-flex; align-items: center; color: var(--sea-dark); text-decoration: none; font-weight: 700;
+            background: #fff; border: 1px solid #d6efed; padding: 3px 8px; border-radius: 6px; font-size: 11px;
+            margin-left: auto; box-shadow: var(--shadow-sm);
+        }
+        .modal-buttons { display: flex; gap: 10px; }
+        .modal-btn {
+            background: var(--sea); color: white; border: none; padding: 14px; width: 100%; border-radius: var(--radius-md);
+            font-weight: 700; cursor: pointer; text-align: center; font-size: 14px; box-shadow: 0 4px 12px rgba(1,178,173,0.25);
+        }
+        .modal-close-btn {
+            background: #f0f3f2; color: var(--ink-soft); border: none; padding: 14px; width: 35%;
+            border-radius: var(--radius-md); font-weight: 700; cursor: pointer; text-align: center; font-size: 14px;
+        }
         @media (max-width: 540px) {
-            .modal-overlay {
-                align-items: flex-end;
-                padding: 0;
-            }
-            .modal {
-                max-width: 100%;
-                border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-                transform: translateY(100%);
-                padding: 32px 20px calc(22px + env(safe-area-inset-bottom)) 20px;
-            }
-            .modal::before {
-                content: '';
-                position: absolute;
-                top: 12px; left: 50%;
-                transform: translateX(-50%);
-                width: 40px; height: 5px;
-                background-color: #e2e7e6;
-                border-radius: 3px;
-            }
+            .overlay { align-items: flex-end; padding: 0; }
+            .modal { max-width: 100%; border-radius: var(--radius-lg) var(--radius-lg) 0 0; transform: translateY(100%); padding: 32px 20px calc(22px + env(safe-area-inset-bottom)) 20px; }
+            .modal::before { content:''; position:absolute; top:12px; left:50%; transform:translateX(-50%); width:40px; height:5px; background-color:#e2e7e6; border-radius:3px; }
+        }
+
+        /* ===== 회원가입 ===== */
+        .auth-card input {
+            width: 100%; padding: 13px 14px; border-radius: var(--radius-md); border: 1.5px solid var(--line);
+            font-size: 14px; margin-bottom: 10px; font-family: inherit;
+        }
+        .auth-note { font-size: 11.5px; color: var(--ink-soft); background: #f7faf9; padding: 10px 12px; border-radius: var(--radius-md); margin-top: 4px; line-height: 1.5; }
+
+        /* ===== QR 스캐너 ===== */
+        .scan-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 200; display: none;
+            align-items: center; justify-content: center; flex-direction: column;
+        }
+        .scan-overlay.show { display: flex; }
+        .scan-overlay video { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+        .scan-frame {
+            width: 68vw; max-width: 280px; aspect-ratio: 1; border: 3px solid var(--tangerine); border-radius: 20px;
+            box-shadow: 0 0 0 2000px rgba(0,0,0,0.45); position: relative; z-index: 2;
+        }
+        .scan-hint { color: #fff; font-size: 13px; margin-top: 18px; position: relative; z-index: 2; font-weight: 600; }
+        .scan-close {
+            position: absolute; top: max(16px, env(safe-area-inset-top)); right: 16px; z-index: 3;
+            background: rgba(255,255,255,0.15); color: #fff; border: none; padding: 10px 16px; border-radius: 30px;
+            font-weight: 700; font-size: 13px;
+        }
+
+        /* ===== 포인트 사용 코드 ===== */
+        .redeem-code-display {
+            text-align: center; font-size: 40px; font-weight: 800; letter-spacing: 6px; color: var(--tangerine-dark);
+            background: #fff3e8; border-radius: var(--radius-md); padding: 20px 10px; margin: 12px 0 16px;
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app-container" id="mainApp" style="display:none;">
     <header class="passport-hero">
         <div class="passport-frame">
             <div class="corner-stamp">GIMNYEONG<br>VILLAGE<br>★</div>
@@ -467,15 +218,18 @@
                 <span class="passport-serial">NO. 2026-김녕</span>
             </div>
             <h1>해녀마을 김녕리<br>골목상권 디지털 지도</h1>
-            <p class="passport-desc">지도 위 상점 아이콘을 눌러 상세 정보를 확인하고<br>감귤 도장 5개를 모아보세요</p>
+            <p class="passport-desc">매장의 QR코드를 스캔해 감귤 도장을 모으고 포인트를 적립해보세요</p>
 
-            <div class="stamp-progress" id="stampProgress">
-                <div class="stamp-slot" data-idx="0">🍊</div>
-                <div class="stamp-slot" data-idx="1">🍊</div>
-                <div class="stamp-slot" data-idx="2">🍊</div>
-                <div class="stamp-slot" data-idx="3">🍊</div>
-                <div class="stamp-slot" data-idx="4">🍊</div>
-                <span class="stamp-count"><strong id="stampCountNum">0</strong>/5 수집</span>
+            <div class="member-row">
+                <div class="member-greet"><strong id="memberName">-</strong>님, 환영합니다</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div class="point-badge"><strong id="pointBalance">0</strong>P</div>
+                    <button class="redeem-btn" onclick="openRedeem()">사용하기</button>
+                </div>
+            </div>
+            <div class="stamp-summary">
+                <strong id="stampCountNum">0</strong>/<span id="stampTotalNum">27</span> 매장 스탬프 수집
+                <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
             </div>
         </div>
     </header>
@@ -483,129 +237,126 @@
     <div class="map-wrap" id="mapWrap">
         <div class="zoom-reset-btn" id="zoomResetBtn" onclick="resetZoom()">1:1</div>
         <div class="map-zoom-layer" id="mapZoomLayer">
-        <div class="map-bg-image"></div>
-
-        <div class="spot-trigger" style="left: 12.5%; top: 47.8%;" onclick="openAuth('청춘당꽈배기')"></div>
-        <div class="spot-trigger" style="left: 18.9%; top: 50.5%;" onclick="openAuth('기억제주맛집')"></div>
-        <div class="spot-trigger" style="left: 23.9%; top: 45.9%;" onclick="openAuth('김녕빵집')"></div>
-        <div class="spot-trigger" style="left: 23.6%; top: 54.8%;" onclick="openAuth('김녕에사는김영훈')"></div>
-        <div class="spot-trigger" style="left: 29.7%; top: 41.1%;" onclick="openAuth('김녕옥상회')"></div>
-        <div class="spot-trigger" style="left: 29.2%; top: 48.7%;" onclick="openAuth('제프버거')"></div>
-        <div class="spot-trigger" style="left: 29.0%; top: 56.4%;" onclick="openAuth('본초불닭발')"></div>
-        <div class="spot-trigger" style="left: 29.2%; top: 65.5%;" onclick="openAuth('스페샬펜션')"></div>
-        <div class="spot-trigger" style="left: 33.6%; top: 56.5%;" onclick="openAuth('매코롬')"></div>
-        <div class="spot-trigger" style="left: 33.5%; top: 37.1%;" onclick="openAuth('김녕챗')"></div>
-        <div class="spot-trigger" style="left: 37.4%; top: 41.3%;" onclick="openAuth('김녕서랍')"></div>
-        <div class="spot-trigger" style="left: 35.5%; top: 48.5%;" onclick="openAuth('김녕소품샵')"></div>
-        <div class="spot-trigger" style="left: 42.3%; top: 38.0%;" onclick="openAuth('한라식당')"></div>
-        <div class="spot-trigger" style="left: 41.9%; top: 47.1%;" onclick="openAuth('영월갈비')"></div>
-        <div class="spot-trigger" style="left: 42.7%; top: 55.4%;" onclick="openAuth('청굴식당')"></div>
-        <div class="spot-trigger" style="left: 46.9%; top: 41.8%;" onclick="openAuth('인수네')"></div>
-        <div class="spot-trigger" style="left: 47.3%; top: 51.7%;" onclick="openAuth('신미식당')"></div>
-        <div class="spot-trigger" style="left: 53.3%; top: 37.6%;" onclick="openAuth('으뜸원')"></div>
-        <div class="spot-trigger" style="left: 53.4%; top: 49.6%;" onclick="openAuth('BHC')"></div>
-        <div class="spot-trigger" style="left: 58.4%; top: 37.9%;" onclick="openAuth('파란소리')"></div>
-        <div class="spot-trigger" style="left: 55.8%; top: 58.4%;" onclick="openAuth('씨유')"></div>
-        <div class="spot-trigger" style="left: 60.8%; top: 46.6%;" onclick="openAuth('킹마트')"></div>
-        <div class="spot-trigger" style="left: 63.8%; top: 53.4%;" onclick="openAuth('더벤티')"></div>
-        <div class="spot-trigger" style="left: 66.4%; top: 44.9%;" onclick="openAuth('김녕홀리다')"></div>
-        <div class="spot-trigger" style="left: 74.0%; top: 41.5%;" onclick="openAuth('대복해장국')"></div>
-        <div class="spot-trigger" style="left: 78.9%; top: 39.6%;" onclick="openAuth('모산봉')"></div>
-        <div class="spot-trigger" style="left: 84.4%; top: 31.8%;" onclick="openAuth('김녕나루터')"></div>
-
-        <div class="stamp-layer" id="stamp0" style="left: 14.7%; top: 83.9%;">🍊</div>
-        <div class="stamp-layer" id="stamp1" style="left: 28.8%; top: 83.9%;">🍊</div>
-        <div class="stamp-layer" id="stamp2" style="left: 43.2%; top: 84.1%;">🍊</div>
-        <div class="stamp-layer" id="stamp3" style="left: 57.4%; top: 83.9%;">🍊</div>
-        <div class="stamp-layer" id="stamp4" style="left: 71.6%; top: 83.7%;">🍊</div>
+            <div class="map-bg-image"></div>
+            <div id="markersHost"></div>
+            <div class="stamp-layer" id="stamp0" style="left: 14.7%; top: 83.9%;">🍊</div>
+            <div class="stamp-layer" id="stamp1" style="left: 28.8%; top: 83.9%;">🍊</div>
+            <div class="stamp-layer" id="stamp2" style="left: 43.2%; top: 84.1%;">🍊</div>
+            <div class="stamp-layer" id="stamp3" style="left: 57.4%; top: 83.9%;">🍊</div>
+            <div class="stamp-layer" id="stamp4" style="left: 71.6%; top: 83.7%;">🍊</div>
         </div>
     </div>
-    <div class="map-caption">🤏 두 손가락으로 지도를 확대·축소할 수 있어요 (더블탭으로도 가능)</div>
+    <div class="map-caption">🤏 두 손가락으로 지도를 확대·축소할 수 있어요</div>
 
-    <button class="reset-btn" onclick="resetTour()">🔄 투어 기록 초기화</button>
+    <button class="reset-btn" onclick="logout()">🚪 로그아웃</button>
 </div>
 
-<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
-    <div class="modal" id="authModal">
+<button class="fab-scan" id="fabScan" style="display:none;" onclick="openScanner()">📷 QR 스캔해서 도장받기</button>
+
+<!-- 회원가입 -->
+<div class="overlay show" id="authOverlay">
+    <div class="modal auth-card">
+        <div class="modal-icon">🍊</div>
+        <h3>스탬프 여권 발급</h3>
+        <div class="modal-meta">STAMP PASSPORT 신규 발급</div>
+        <p>이름과 전화번호만 입력하면 바로 시작할 수 있어요. 다음 방문부터는 같은 번호로 자동으로 이어집니다.</p>
+        <input id="authName" placeholder="이름" maxlength="20">
+        <input id="authPhone" placeholder="전화번호 (- 없이 숫자만)" inputmode="numeric" maxlength="15">
+        <button class="modal-btn" onclick="handleSignup()">여권 발급받기</button>
+        <div class="auth-note">⚠ 문자 인증 없이 전화번호로만 식별돼요. 본인 번호를 정확히 입력해주세요.</div>
+    </div>
+</div>
+
+<!-- 매장 정보 -->
+<div class="overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+    <div class="modal">
         <div class="modal-icon">🏪</div>
         <h3 id="modalTitle">매장 이름</h3>
-        <div class="modal-meta" id="modalCategory">분류 정보</div>
+        <span class="modal-meta" id="modalCategory">분류 정보</span>
+        <span class="visited-chip" id="modalVisitedChip" style="display:none;">✅ 스탬프 완료</span>
         <p id="modalDesc">매장 상세 설명이 여기에 들어갑니다.</p>
-
         <div class="modal-info-box">
-            <div><span class="label">📍 주소</span><span id="modalAddress" class="val">제주도 제주시...</span></div>
-            <div>
-                <span class="label">📞 전화</span>
-                <span id="modalPhone" class="val">064-...</span>
+            <div><span class="label">📍 주소</span><span id="modalAddress"></span></div>
+            <div><span class="label">📞 전화</span><span id="modalPhone"></span>
                 <a href="#" id="modalPhoneBtn" class="phone-link">전화걸기</a>
             </div>
         </div>
-
         <div class="modal-buttons">
             <button class="modal-close-btn" onclick="closeModal()">닫기</button>
-            <button class="modal-btn" onclick="collectStamp()">방문 도장 찍기</button>
         </div>
     </div>
 </div>
 
-<script>
-    // 로컬 점포 데이터 딕셔너리
-    const storeData = {
-        '청춘당꽈배기': { cat: '디저트 / 베이커리', desc: '갓 튀겨내어 겉은 바삭하고 속은 쫄깃한 명품 찹쌀 꽈배기 전문점입니다. 가벼운 간식으로 최고!', addr: '제주시 구좌읍 김녕로 149', tel: '064-782-4588' },
-        '기억제주맛집': { cat: '로컬 한식당', desc: '제주산 싱싱한 전복과 갈치조림 등 깊은 손맛의 향토 음식을 맛볼 수 있는 든든한 로컬 맛집입니다.', addr: '제주시 구좌읍 김녕로21길 11', tel: '064-724-0408' },
-        '김녕빵집': { cat: '베이커리 카페', desc: '담백한 소금빵과 고소한 패스츄리로 SNS에서 입소문 난 김녕의 대표 필수 방문 빵지순례 코스입니다.', addr: '제주시 구좌읍 김녕로 136-1', tel: '010-6318-0218' },
-        '김녕에사는김영훈': { cat: '감성 카페', desc: '김녕 바다 감성을 품은 아늑하고 조용한 공간에서 정성스레 내린 커피와 시그니처 음료를 즐길 수 있습니다.', addr: '제주시 구좌읍 김녕로6길 2 1층', tel: '010-6302-1938' },
-        '김녕옥상회': { cat: '로컬 잡화 / 소품샵', desc: '제주의 옛 구옥 정취를 살린 공간에서 아기자기한 핸드메이드 소품과 유니크한 기념품들을 큐레이션합니다.', addr: '제주시 구좌읍 김녕로11길 9-1', tel: '010-9114-1188' },
-        '제프버거': { cat: '수제버거 전문점', desc: '두툼하고 육즙 가득한 수제 패티와 특제 소스, 신선한 야채가 어우러진 비주얼 끝판왕 수제버거 맛집입니다.', addr: '제주시 구좌읍 김녕로13길 13', tel: '064-783-1188' },
-        '본초불닭발': { cat: '야식 / 포차', desc: '화끈한 불향과 중독성 있는 매운맛으로 김녕의 밤을 책임지는 로컬 단골 닭발 및 야식 전문점입니다.', addr: '제주시 구좌읍 김녕로 80', tel: '064-784-3009' },
-        '스페샬펜션': { cat: '숙박 시설', desc: '창문 너머로 푸른 김녕 바다와 시원한 파도 소리가 들려오는 편안하고 쾌적한 마을 스테이 공간입니다.', addr: '제주시 구좌읍 김녕로 72-1', tel: '064-782-3532' },
-        '매코롬': { cat: '로컬 한식 / 분식', desc: '이름처럼 입맛 돋우는 매콤달콤한 양념 요리와 정갈한 밑반찬이 매력적인 친근한 동네 식당입니다.', addr: '제주시 구좌읍 김녕로 85', tel: '064-784-0708' },
-        '김녕챗': { cat: '커뮤니티 / 복합 공간', desc: '마을 주민들과 여행객들이 한데 모여 따뜻한 대화를 나누고 로컬 정보를 공유하는 오픈 소통 공간입니다.', addr: '제주시 구좌읍 김녕로11길 23', tel: '0507-1335-5126' },
-        '김녕서랍': { cat: '감성 소품샵', desc: '나만 알고 싶은 작은 서랍처럼 제주의 푸른 바다와 자연을 닮은 아기자기한 라이프스타일 굿즈들이 가득합니다.', addr: '제주시 구좌읍 김녕로17길 18', tel: '010-4411-4017' },
-        '김녕소품샵': { cat: '기념품 전문점', desc: '해녀 일러스트 굿즈부터 제주 특산품을 활용한 가벼운 선물용 아이템까지 다양하게 모아놓은 종합 편집숍입니다.', addr: '제주시 구좌읍 김녕로21길 2', tel: '' },
-        '한라식당': { cat: '제주 향토음식', desc: '현지인들이 강력 추천하는 우럭정식과 갈치조림 전문점으로, 깊고 진한 로컬 양념 맛이 일품입니다.', addr: '제주시 구좌읍 김녕로 116', tel: '064-782-5123' },
-        '영월갈비': { cat: '육류 구이전문', desc: '품질 좋은 고기를 비법 양념에 재워 남녀노소 호불호 없이 즐길 수 있는 김녕리 전통의 갈비 맛집입니다.', addr: '제주시 구좌읍 김녕로 115', tel: '064-782-3118' },
-        '청굴식당': { cat: '해산물 요리', desc: '김녕 청굴물 인근의 신선함을 담아 싱싱한 계절 해산물과 물회, 성게국 등을 바다 향 가득하게 대접합니다.', addr: '제주시 구좌읍 김녕로 125', tel: '064-782-5509' },
-        '인수네': { cat: '인수네 정육식당', desc: '신선하고 두툼한 제주산 돼지고기와 한우를 정육점 가격으로 가성비 좋게 구워 먹을 수 있는 고깃집입니다.', addr: '제주시 구좌읍 김녕로 106-1', tel: '064-784-2988' },
-        '신미식당': { cat: '동네 밥집 / 한식', desc: '어머니가 차려주신 듯 정성 가득하고 정갈한 백반 정식과 찌개류로 동네 주민들의 사랑을 받는 식당입니다.', addr: '제주시 구좌읍 김녕로 99', tel: '064-782-5066' },
-        '으뜸원': { cat: '으뜸원 마늘갈비', desc: '알싸하고 달콤한 제주 마늘 양념을 듬뿍 얹어 풍미를 극대화한 독보적인 풍미의 갈비 구이 전문점입니다.', addr: '제주시 구좌읍 김녕로 100', tel: '064-782-9592' },
-        'BHC': { cat: '치킨 전문점', desc: '바삭한 뿌링클과 맛초킹 등 여행의 밤을 시원한 맥주와 함께 달래줄 믿고 먹는 친숙한 치킨 브랜드입니다.', addr: '제주시 구좌읍 김녕로 94', tel: '064-784-9989' },
-        '파란소리': { cat: '파란소리 음악학원', desc: '김녕리 아이들의 맑은 피아노 소리와 예술적 감성이 자라나는 따뜻하고 친근한 동네 음악 공간입니다.', addr: '제주시 구좌읍 김녕로 96', tel: '064-782-0125' },
-        '씨유': { cat: 'CU 김녕리점', desc: '올레길 투어나 마을 산책 중 필요한 간식과 편의 물품을 24시간 언제든 채울 수 있는 고마운 편의점입니다.', addr: '제주시 구좌읍 김녕로 68', tel: '064-784-8845' },
-        '킹마트': { cat: '중형 마트', desc: '신선한 청과류부터 생필품까지 마을에서 가장 다양한 물건을 합리적으로 구비해 둔 김녕리의 중심 마트입니다.', addr: '제주시 구좌읍 김녕로 91', tel: '064-782-8289' },
-        '더벤티': { cat: '프랜차이즈 카페', desc: '합리적인 가격에 압도적인 대용량 커피와 달콤한 음료들을 빠르게 테이크아웃할 수 있는 접근성 좋은 카페입니다.', addr: '제주시 구좌읍 김녕로 87', tel: '064-783-3331' },
-        '김녕홀리다': { cat: '퓨전 다이닝 카페', desc: '김녕의 아름다운 풍경에 홀리듯 머물며 트렌디한 브런치와 이색 음료를 즐길 수 있는 감성 플레이스입니다.', addr: '제주시 구좌읍 김녕로 93', tel: '0507-1339-4475' },
-        '대복해장국': { cat: '해장국 / 국밥', desc: '이른 아침부터 뼈속까지 시원하고 칼칼한 육수로 속을 풀어주는 전형적인 로컬 해장 1번지 국밥집입니다.', addr: '제주시 구좌읍 김녕로 109', tel: '064-782-3588' },
-        '모산봉': { cat: '중국음식 / 식당', desc: '김녕리 마을의 오랜 정취를 담아 깔끔하고 푸짐한 중화요리를 대접하는 정겨운 로컬 식당입니다.', addr: '제주시 구좌읍 김녕로 117', tel: '064-782-2544' },
-        '김녕나루터': { cat: '숯불구이 / 식당', desc: '각종 숯불 구이 고기를 안주 삼아 바다 정취를 낭만적으로 즐기는 곳입니다.', addr: '제주시 구좌읍 김녕항해안길 150', tel: '064-784-9005' }
-    };
+<!-- 포인트 사용 -->
+<div class="overlay" id="redeemOverlay" onclick="closeRedeemOnBg(event)">
+    <div class="modal">
+        <div id="redeemForm">
+            <div class="modal-icon">🎟️</div>
+            <h3>포인트 사용하기</h3>
+            <p>사용할 포인트를 입력하면 매장에서 확인 가능한 6자리 코드가 발급돼요.</p>
+            <input id="redeemAmount" type="number" placeholder="사용할 포인트" style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);font-size:16px;margin-bottom:16px;">
+            <div class="modal-buttons">
+                <button class="modal-close-btn" onclick="closeRedeem()">닫기</button>
+                <button class="modal-btn" onclick="submitRedeem()">코드 발급</button>
+            </div>
+        </div>
+        <div id="redeemResult" style="display:none;">
+            <div class="modal-icon">✅</div>
+            <h3>발급 완료</h3>
+            <p>이 코드를 매장 직원에게 보여주세요.</p>
+            <div class="redeem-code-display" id="redeemCodeDisplay">000000</div>
+            <div class="modal-buttons">
+                <button class="modal-btn" onclick="closeRedeem()">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    let currentTargetName = "";
-    let currentStampCount = 0;
-    const historyList = [];
+<!-- QR 스캐너 -->
+<div class="scan-overlay" id="scanOverlay">
+    <video id="scanVideo" playsinline muted autoplay></video>
+    <button class="scan-close" onclick="closeScanner()">닫기 ✕</button>
+    <div class="scan-frame"></div>
+    <div class="scan-hint">매장 QR을 사각형 안에 맞춰주세요</div>
+    <canvas id="scanCanvas" style="display:none;"></canvas>
+</div>
+
+<script>
+    // ⚠️ 설정: Supabase 프로젝트 생성 후 아래 두 값을 반드시 채워주세요.
+    const SUPABASE_URL = 'https://qalucfueixjcjqmwidhb.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_JFgZSVFcTmLASSHCaErC5w_tqGHZsZh';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 지도 마커 위치 (schema.sql 시딩 순서와 반드시 동일)
+    const POSITIONS = [
+        {left:'12.5%', top:'47.8%'}, {left:'18.9%', top:'50.5%'}, {left:'23.9%', top:'45.9%'},
+        {left:'23.6%', top:'54.8%'}, {left:'29.7%', top:'41.1%'}, {left:'29.2%', top:'48.7%'},
+        {left:'29.0%', top:'56.4%'}, {left:'29.2%', top:'65.5%'}, {left:'33.6%', top:'56.5%'},
+        {left:'33.5%', top:'37.1%'}, {left:'37.4%', top:'41.3%'}, {left:'35.5%', top:'48.5%'},
+        {left:'42.3%', top:'38.0%'}, {left:'41.9%', top:'47.1%'}, {left:'42.7%', top:'55.4%'},
+        {left:'46.9%', top:'41.8%'}, {left:'47.3%', top:'51.7%'}, {left:'53.3%', top:'37.6%'},
+        {left:'53.4%', top:'49.6%'}, {left:'58.4%', top:'37.9%'}, {left:'55.8%', top:'58.4%'},
+        {left:'60.8%', top:'46.6%'}, {left:'63.8%', top:'53.4%'}, {left:'66.4%', top:'44.9%'},
+        {left:'74.0%', top:'41.5%'}, {left:'78.9%', top:'39.6%'}, {left:'84.4%', top:'31.8%'}
+    ];
+
+    let session = JSON.parse(localStorage.getItem('gny_session') || 'null');
+    let storesData = [];
+    let myStamps = new Set();
+    let myBalance = 0;
 
     // ===== 지도 전용 핀치 줌 / 팬 (페이지 전체 확대와는 분리) =====
     (function initMapZoom() {
         const wrap = document.getElementById('mapWrap');
         const layer = document.getElementById('mapZoomLayer');
         const zoomBtn = document.getElementById('zoomResetBtn');
-        const MIN_SCALE = 1;
-        const MAX_SCALE = 3.5;
-
+        const MIN_SCALE = 1, MAX_SCALE = 3.5;
         let scale = 1, tx = 0, ty = 0;
-        let mode = null; // 'pinch' | 'pan'
-        let moved = false;
-        let suppressClick = false;
-
-        let pinch = null; // {startDist, startScale, contentX, contentY, rectLeft, rectTop}
-        let pan = null;   // {startX, startY, startTx, startTy}
-
+        let mode = null, moved = false, suppressClick = false;
+        let pinch = null, pan = null;
         let lastTapTime = 0, lastTapPos = null;
 
-        function applyTransform() {
-            layer.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-        }
-
+        function applyTransform() { layer.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; }
         function clampPan() {
             const rect = wrap.getBoundingClientRect();
             if (scale <= 1) { tx = 0; ty = 0; return; }
@@ -614,79 +365,56 @@
             tx = Math.min(0, Math.max(minX, tx));
             ty = Math.min(0, Math.max(minY, ty));
         }
-
-        function updateZoomBtn() {
-            zoomBtn.classList.toggle('visible', scale > 1.02);
-        }
-
-        function dist(p1, p2) { return Math.hypot(p1.x - p2.x, p1.y - p2.y); }
-        function mid(p1, p2) { return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }; }
-
-        function pointFromTouch(t) { return { x: t.clientX, y: t.clientY }; }
+        function updateZoomBtn() { zoomBtn.classList.toggle('visible', scale > 1.02); }
+        function dist(p1,p2){ return Math.hypot(p1.x-p2.x, p1.y-p2.y); }
+        function mid(p1,p2){ return {x:(p1.x+p2.x)/2, y:(p1.y+p2.y)/2}; }
+        function pointFromTouch(t){ return {x:t.clientX, y:t.clientY}; }
 
         window.resetZoom = function () {
             layer.style.transition = 'transform 0.3s ease';
             scale = 1; tx = 0; ty = 0;
-            applyTransform();
-            updateZoomBtn();
+            applyTransform(); updateZoomBtn();
             setTimeout(() => { layer.style.transition = ''; }, 300);
         };
 
         function toggleZoom(clientX, clientY) {
             const rect = wrap.getBoundingClientRect();
             layer.style.transition = 'transform 0.3s ease';
-            if (scale > 1.02) {
-                scale = 1; tx = 0; ty = 0;
-            } else {
+            if (scale > 1.02) { scale = 1; tx = 0; ty = 0; }
+            else {
                 const targetScale = 2.2;
-                const mx = clientX - rect.left;
-                const my = clientY - rect.top;
-                const contentX = (mx - tx) / scale;
-                const contentY = (my - ty) / scale;
+                const mx = clientX - rect.left, my = clientY - rect.top;
+                const contentX = (mx - tx) / scale, contentY = (my - ty) / scale;
                 scale = targetScale;
-                tx = mx - scale * contentX;
-                ty = my - scale * contentY;
+                tx = mx - scale * contentX; ty = my - scale * contentY;
                 clampPan();
             }
-            applyTransform();
-            updateZoomBtn();
+            applyTransform(); updateZoomBtn();
             setTimeout(() => { layer.style.transition = ''; }, 300);
         }
 
         wrap.addEventListener('touchstart', (e) => {
-            moved = false;
-            layer.style.transition = '';
-
+            moved = false; layer.style.transition = '';
             if (e.touches.length === 2) {
                 mode = 'pinch';
                 const rect = wrap.getBoundingClientRect();
-                const p1 = pointFromTouch(e.touches[0]);
-                const p2 = pointFromTouch(e.touches[1]);
-                const m0 = mid(p1, p2);
-                const mx0 = m0.x - rect.left;
-                const my0 = m0.y - rect.top;
-                pinch = {
-                    startDist: dist(p1, p2),
-                    startScale: scale,
-                    contentX: (mx0 - tx) / scale,
-                    contentY: (my0 - ty) / scale,
-                    rectLeft: rect.left,
-                    rectTop: rect.top
-                };
+                const p1 = pointFromTouch(e.touches[0]), p2 = pointFromTouch(e.touches[1]);
+                const m0 = mid(p1,p2);
+                const mx0 = m0.x - rect.left, my0 = m0.y - rect.top;
+                pinch = { startDist: dist(p1,p2), startScale: scale,
+                          contentX: (mx0-tx)/scale, contentY: (my0-ty)/scale,
+                          rectLeft: rect.left, rectTop: rect.top };
             } else if (e.touches.length === 1) {
                 const t = e.touches[0];
                 mode = scale > 1.02 ? 'pan' : 'tap';
                 pan = { startX: t.clientX, startY: t.clientY, startTx: tx, startTy: ty };
-
                 const now = Date.now();
                 if (lastTapPos && now - lastTapTime < 320 &&
-                    Math.hypot(t.clientX - lastTapPos.x, t.clientY - lastTapPos.y) < 30) {
+                    Math.hypot(t.clientX-lastTapPos.x, t.clientY-lastTapPos.y) < 30) {
                     toggleZoom(t.clientX, t.clientY);
-                    lastTapTime = 0;
-                    lastTapPos = null;
+                    lastTapTime = 0; lastTapPos = null;
                 } else {
-                    lastTapTime = now;
-                    lastTapPos = { x: t.clientX, y: t.clientY };
+                    lastTapTime = now; lastTapPos = { x:t.clientX, y:t.clientY };
                 }
             }
         }, { passive: true });
@@ -694,126 +422,274 @@
         wrap.addEventListener('touchmove', (e) => {
             if (mode === 'pinch' && e.touches.length === 2 && pinch) {
                 e.preventDefault();
-                const p1 = pointFromTouch(e.touches[0]);
-                const p2 = pointFromTouch(e.touches[1]);
-                const d = dist(p1, p2);
+                const p1 = pointFromTouch(e.touches[0]), p2 = pointFromTouch(e.touches[1]);
+                const d = dist(p1,p2);
                 let newScale = pinch.startScale * (d / pinch.startDist);
                 newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale));
-                const m = mid(p1, p2);
-                const mx = m.x - pinch.rectLeft;
-                const my = m.y - pinch.rectTop;
+                const m = mid(p1,p2);
+                const mx = m.x - pinch.rectLeft, my = m.y - pinch.rectTop;
                 scale = newScale;
-                tx = mx - scale * pinch.contentX;
-                ty = my - scale * pinch.contentY;
-                clampPan();
-                applyTransform();
-                updateZoomBtn();
+                tx = mx - scale*pinch.contentX; ty = my - scale*pinch.contentY;
+                clampPan(); applyTransform(); updateZoomBtn();
                 moved = true;
             } else if (mode === 'pan' && e.touches.length === 1 && pan) {
                 const t = e.touches[0];
-                const dx = t.clientX - pan.startX;
-                const dy = t.clientY - pan.startY;
-                if (Math.hypot(dx, dy) > 6) {
-                    e.preventDefault();
-                    moved = true;
-                    tx = pan.startTx + dx;
-                    ty = pan.startTy + dy;
-                    clampPan();
-                    applyTransform();
+                const dx = t.clientX - pan.startX, dy = t.clientY - pan.startY;
+                if (Math.hypot(dx,dy) > 6) {
+                    e.preventDefault(); moved = true;
+                    tx = pan.startTx + dx; ty = pan.startTy + dy;
+                    clampPan(); applyTransform();
                 }
             }
         }, { passive: false });
 
         wrap.addEventListener('touchend', () => {
-            if (moved) {
-                suppressClick = true;
-                setTimeout(() => { suppressClick = false; }, 300);
-            }
+            if (moved) { suppressClick = true; setTimeout(() => { suppressClick = false; }, 300); }
             mode = null; pinch = null; pan = null;
         });
 
-        // 드래그/핀치 직후 발생하는 의도치 않은 매장 클릭 방지 (캡처 단계에서 차단)
         wrap.addEventListener('click', (e) => {
-            if (suppressClick) {
-                e.stopPropagation();
-                e.preventDefault();
-            }
+            if (suppressClick) { e.stopPropagation(); e.preventDefault(); }
         }, true);
     })();
 
-    function openAuth(name) {
-        currentTargetName = name;
-        const info = storeData[name] || { cat: '매장', desc: '상세 정보 준비 중입니다.', addr: '정보 없음', tel: '' };
+    // ---------- 부팅 ----------
+    async function boot() {
+        const params = new URLSearchParams(location.search);
+        const pendingCheckin = params.get('checkin');
+        if (pendingCheckin) sessionStorage.setItem('pending_checkin', pendingCheckin);
 
-        document.getElementById('modalTitle').innerText = name;
-        document.getElementById('modalCategory').innerText = info.cat;
-        document.getElementById('modalDesc').innerText = info.desc;
-        document.getElementById('modalAddress').innerText = info.addr;
+        if (session) {
+            document.getElementById('authOverlay').classList.remove('show');
+            await enterApp();
+        }
+    }
+
+    async function enterApp() {
+        document.getElementById('mainApp').style.display = '';
+        document.getElementById('fabScan').style.display = '';
+        await loadStores();
+        const ok = await refreshStatus();
+        if (ok) maybeCompletePendingCheckin();
+    }
+
+    // ---------- 회원가입 ----------
+    async function handleSignup() {
+        const name = document.getElementById('authName').value.trim();
+        const phone = document.getElementById('authPhone').value.trim();
+        if (!name) { alert('이름을 입력해주세요.'); return; }
+        if (phone.replace(/[^0-9]/g,'').length < 9) { alert('전화번호를 정확히 입력해주세요.'); return; }
+
+        const { data, error } = await sb.rpc('signup_or_login', { p_phone: phone, p_name: name });
+        if (error) { alert('가입에 실패했어요: ' + error.message); return; }
+
+        session = { member_id: data.member_id, session_token: data.session_token, name: data.name, phone: data.phone };
+        localStorage.setItem('gny_session', JSON.stringify(session));
+        document.getElementById('authOverlay').classList.remove('show');
+        await enterApp();
+    }
+
+    function logout() {
+        if (!confirm('로그아웃하면 이 기기에서 다시 전화번호로 로그인해야 해요. 계속할까요?')) return;
+        localStorage.removeItem('gny_session');
+        location.reload();
+    }
+
+    // ---------- 매장 목록 ----------
+    async function loadStores() {
+        const { data, error } = await sb.from('stores_public').select('*').order('id');
+        if (error) { alert('매장 목록을 불러오지 못했어요.'); return; }
+        storesData = data.map((s, i) => ({ ...s, ...(POSITIONS[i] || {left:'50%', top:'50%'}) }));
+        document.getElementById('stampTotalNum').innerText = storesData.length;
+        renderMarkers();
+    }
+
+    function renderMarkers() {
+        const host = document.getElementById('markersHost');
+        host.innerHTML = '';
+        storesData.forEach(store => {
+            const trigger = document.createElement('div');
+            trigger.className = 'spot-trigger';
+            trigger.style.left = store.left;
+            trigger.style.top = store.top;
+            trigger.onclick = () => openStoreModal(store.id);
+            host.appendChild(trigger);
+
+            const badge = document.createElement('div');
+            badge.className = 'visited-badge';
+            badge.id = 'badge-' + store.id;
+            badge.style.left = store.left;
+            badge.style.top = store.top;
+            badge.innerText = '✓';
+            host.appendChild(badge);
+        });
+        renderVisitedBadges();
+    }
+
+    function renderVisitedBadges() {
+        storesData.forEach(store => {
+            const el = document.getElementById('badge-' + store.id);
+            if (el) el.classList.toggle('show', myStamps.has(store.id));
+        });
+    }
+
+    // ---------- 상태 조회 ----------
+    async function refreshStatus() {
+        const { data, error } = await sb.rpc('get_status', { p_session_token: session.session_token });
+        if (error) {
+            alert('세션이 만료됐어요. 다시 로그인해주세요.');
+            localStorage.removeItem('gny_session');
+            location.reload();
+            return false;
+        }
+        myStamps = new Set(data.stamped_store_ids);
+        myBalance = data.balance;
+
+        document.getElementById('memberName').innerText = data.name;
+        document.getElementById('pointBalance').innerText = myBalance.toLocaleString();
+        document.getElementById('stampCountNum').innerText = myStamps.size;
+        const total = storesData.length || 27;
+        document.getElementById('progressFill').style.width = Math.round((myStamps.size/total)*100) + '%';
+
+        const milestone = Math.min(5, Math.floor((myStamps.size/total)*5));
+        for (let i=0;i<5;i++){
+            document.getElementById('stamp'+i).classList.toggle('active', i < milestone);
+        }
+        renderVisitedBadges();
+        return true;
+    }
+
+    // ---------- 매장 정보 모달 ----------
+    function openStoreModal(storeId) {
+        const store = storesData.find(s => s.id === storeId);
+        if (!store) return;
+        document.getElementById('modalTitle').innerText = store.name;
+        document.getElementById('modalCategory').innerText = store.category || '매장';
+        document.getElementById('modalDesc').innerText = store.description || '상세 정보 준비 중입니다.';
+        document.getElementById('modalAddress').innerText = store.address || '정보 없음';
+        document.getElementById('modalVisitedChip').style.display = myStamps.has(storeId) ? 'inline-block' : 'none';
 
         const phoneBtn = document.getElementById('modalPhoneBtn');
-        if (info.tel && info.tel.trim() !== '') {
-            document.getElementById('modalPhone').innerText = info.tel;
-            phoneBtn.setAttribute('href', `tel:${info.tel.replace(/[^0-9]/g, '')}`);
+        if (store.phone && store.phone.trim() !== '') {
+            document.getElementById('modalPhone').innerText = store.phone;
+            phoneBtn.setAttribute('href', `tel:${store.phone.replace(/[^0-9]/g,'')}`);
             phoneBtn.style.display = 'inline-flex';
         } else {
             document.getElementById('modalPhone').innerText = '등록 정보 없음';
             phoneBtn.style.display = 'none';
         }
-
         document.getElementById('modalOverlay').classList.add('show');
-        document.body.style.overflow = 'hidden';
     }
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+    function closeModalOnBg(e) { if (e.target.id === 'modalOverlay') closeModal(); }
 
-    function closeModal() {
-        document.getElementById('modalOverlay').classList.remove('show');
-        document.body.style.overflow = '';
-    }
+    // ---------- QR 스캐너 ----------
+    let scanStream = null;
+    let scanning = false;
 
-    function closeModalOnBg(e) {
-        if (e.target.id === 'modalOverlay') {
-            closeModal();
-        }
-    }
-
-    function updateStampUI() {
-        const slots = document.querySelectorAll('.stamp-slot');
-        slots.forEach((slot, idx) => {
-            slot.classList.toggle('filled', idx < currentStampCount);
-        });
-        document.getElementById('stampCountNum').innerText = currentStampCount;
-    }
-
-    function collectStamp() {
-        if (historyList.includes(currentTargetName)) {
-            alert("이미 도장을 찍은 매장입니다.");
+    async function openScanner() {
+        document.getElementById('scanOverlay').classList.add('show');
+        scanning = true;
+        try {
+            scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        } catch (e) {
+            alert('카메라를 사용할 수 없어요. 브라우저 카메라 권한을 확인해주세요.');
+            closeScanner();
             return;
         }
-        if (currentStampCount >= 5) {
-            alert("이미 5개의 스탬프 투어를 모두 완료하셨습니다!");
+        const video = document.getElementById('scanVideo');
+        video.srcObject = scanStream;
+        await video.play();
+        requestAnimationFrame(scanLoop);
+    }
+
+    function closeScanner() {
+        scanning = false;
+        document.getElementById('scanOverlay').classList.remove('show');
+        if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+    }
+
+    function scanLoop() {
+        if (!scanning) return;
+        const video = document.getElementById('scanVideo');
+        const canvas = document.getElementById('scanCanvas');
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            if (code) {
+                const token = extractToken(code.data);
+                closeScanner();
+                doCheckin(token);
+                return;
+            }
+        }
+        requestAnimationFrame(scanLoop);
+    }
+
+    function extractToken(text) {
+        try {
+            const url = new URL(text);
+            const t = url.searchParams.get('checkin');
+            if (t) return t;
+        } catch (e) { /* not a URL, treat as raw token */ }
+        return text.trim();
+    }
+
+    async function doCheckin(token) {
+        const { data, error } = await sb.rpc('checkin_store', { p_session_token: session.session_token, p_qr_token: token });
+        if (error) {
+            if (error.message && error.message.includes('INVALID_QR')) {
+                alert('인식할 수 없는 QR이에요. 매장 QR이 맞는지 확인해주세요.');
+            } else {
+                alert('처리 중 문제가 발생했어요: ' + error.message);
+            }
             return;
         }
-
-        historyList.push(currentTargetName);
-        document.getElementById(`stamp${currentStampCount}`).classList.add('active');
-        currentStampCount++;
-        updateStampUI();
-
-        closeModal();
-        setTimeout(() => {
-            alert(`🍊 [${currentTargetName}] 골목상권 스탬프 투어 도장 완료!`);
-        }, 300);
-    }
-
-    function resetTour() {
-        if (!confirm("스탬프 투어 기록을 초기화하시겠습니까?")) return;
-        currentStampCount = 0;
-        historyList.length = 0;
-        for (let i = 0; i < 5; i++) {
-            document.getElementById(`stamp${i}`).classList.remove('active');
+        if (data.already) {
+            alert(`이미 [${data.store_name}] 스탬프를 받으셨어요.`);
+        } else {
+            alert(`🍊 [${data.store_name}] 도장 획득! +${data.points_earned}P`);
         }
-        updateStampUI();
-        closeModal();
+        await refreshStatus();
     }
+
+    function maybeCompletePendingCheckin() {
+        const token = sessionStorage.getItem('pending_checkin');
+        if (token) {
+            sessionStorage.removeItem('pending_checkin');
+            doCheckin(token);
+        }
+    }
+
+    // ---------- 포인트 사용 ----------
+    function openRedeem() {
+        document.getElementById('redeemForm').style.display = '';
+        document.getElementById('redeemResult').style.display = 'none';
+        document.getElementById('redeemAmount').value = '';
+        document.getElementById('redeemOverlay').classList.add('show');
+    }
+    function closeRedeem() { document.getElementById('redeemOverlay').classList.remove('show'); }
+    function closeRedeemOnBg(e) { if (e.target.id === 'redeemOverlay') closeRedeem(); }
+
+    async function submitRedeem() {
+        const amount = parseInt(document.getElementById('redeemAmount').value, 10);
+        if (!amount || amount <= 0) { alert('사용할 포인트를 입력해주세요.'); return; }
+        if (amount > myBalance) { alert(`보유 포인트(${myBalance.toLocaleString()}P)보다 많아요.`); return; }
+
+        const { data, error } = await sb.rpc('request_redeem', { p_session_token: session.session_token, p_points: amount });
+        if (error) { alert('코드 발급에 실패했어요: ' + error.message); return; }
+
+        document.getElementById('redeemCodeDisplay').innerText = data.code;
+        document.getElementById('redeemForm').style.display = 'none';
+        document.getElementById('redeemResult').style.display = '';
+        await refreshStatus();
+    }
+
+    boot();
 </script>
 </body>
 </html>
