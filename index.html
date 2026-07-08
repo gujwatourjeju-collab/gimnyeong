@@ -144,6 +144,28 @@
             border-radius: 30px; cursor: pointer; font-weight: 700; color: var(--ink-soft); font-size: 12.5px;
         }
 
+        /* ===== 매장 선택 팝업 ===== */
+        .store-picker {
+            position: absolute; z-index: 25;
+            background: #fff; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            padding: 8px; display: none; flex-direction: column; gap: 5px;
+            transform: translate(-50%, -115%); min-width: 130px; pointer-events: auto;
+        }
+        .store-picker.show { display: flex; }
+        .store-picker::after {
+            content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%);
+            border-left: 7px solid transparent; border-right: 7px solid transparent;
+            border-top: 7px solid #fff;
+        }
+        .picker-title { font-size: 10px; font-weight: 700; color: var(--ink-soft); padding: 2px 4px 6px; }
+        .picker-btn {
+            background: var(--sea-light); border: none; padding: 9px 12px; border-radius: 8px;
+            font-size: 12.5px; font-weight: 700; color: var(--sea-dark);
+            cursor: pointer; text-align: left; font-family: inherit; transition: background 0.15s;
+        }
+        .picker-btn:active { background: var(--sea); color: #fff; }
+
         /* ===== 모달 공통 ===== */
         .overlay {
             position: fixed; inset: 0; background-color: rgba(15,26,24,0.5); backdrop-filter: blur(4px);
@@ -376,6 +398,13 @@
         '김녕나루터':            {left:'90.4%', top:'24.1%'},
     };
 
+    // 같은 건물에 있는 매장 묶음 — 마커 하나에 팝업으로 선택
+    const GROUPS = [
+        ['김녕옥상회', '김녕서랍']
+    ];
+    const SECONDARY = new Set(GROUPS.flatMap(g => g.slice(1)));
+    const GROUP_BY_PRIMARY = Object.fromEntries(GROUPS.map(g => [g[0], g]));
+
     let session = JSON.parse(localStorage.getItem('gny_session') || 'null');
     let storesData = [];
     let myStamps = new Set();
@@ -546,12 +575,26 @@
     function renderMarkers() {
         const host = document.getElementById('markersHost');
         host.innerHTML = '';
+
+        const picker = document.createElement('div');
+        picker.id = 'storePicker';
+        picker.className = 'store-picker';
+        host.appendChild(picker);
+
         storesData.forEach(store => {
+            if (SECONDARY.has(store.name)) return;
+
             const trigger = document.createElement('div');
             trigger.className = 'spot-trigger';
             trigger.style.left = store.left;
             trigger.style.top = store.top;
-            trigger.onclick = () => openStoreModal(store.id);
+
+            if (GROUP_BY_PRIMARY[store.name]) {
+                const groupNames = GROUP_BY_PRIMARY[store.name];
+                trigger.onclick = (e) => { e.stopPropagation(); openPicker(groupNames, store.left, store.top); };
+            } else {
+                trigger.onclick = () => openStoreModal(store.id);
+            }
             host.appendChild(trigger);
 
             const badge = document.createElement('div');
@@ -567,9 +610,41 @@
 
     function renderVisitedBadges() {
         storesData.forEach(store => {
+            if (SECONDARY.has(store.name)) return;
             const el = document.getElementById('badge-' + store.id);
-            if (el) el.classList.toggle('show', myStamps.has(store.id));
+            if (!el) return;
+            if (GROUP_BY_PRIMARY[store.name]) {
+                const anyVisited = GROUP_BY_PRIMARY[store.name].some(name => {
+                    const s = storesData.find(s => s.name === name);
+                    return s && myStamps.has(s.id);
+                });
+                el.classList.toggle('show', anyVisited);
+            } else {
+                el.classList.toggle('show', myStamps.has(store.id));
+            }
         });
+    }
+
+    function openPicker(groupNames, leftPct, topPct) {
+        const picker = document.getElementById('storePicker');
+        picker.style.left = leftPct;
+        picker.style.top = topPct;
+        picker.innerHTML = '<div class="picker-title">매장 선택</div>';
+        groupNames.forEach(name => {
+            const store = storesData.find(s => s.name === name);
+            if (!store) return;
+            const btn = document.createElement('button');
+            btn.className = 'picker-btn';
+            btn.textContent = name;
+            btn.onclick = () => { closePicker(); openStoreModal(store.id); };
+            picker.appendChild(btn);
+        });
+        picker.classList.add('show');
+    }
+
+    function closePicker() {
+        const picker = document.getElementById('storePicker');
+        if (picker) picker.classList.remove('show');
     }
 
     // ---------- 상태 조회 ----------
@@ -707,6 +782,11 @@
         }
     }
 
+
+    document.addEventListener('click', (e) => {
+        const picker = document.getElementById('storePicker');
+        if (picker && !picker.contains(e.target)) closePicker();
+    });
 
     boot();
 </script>
