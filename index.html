@@ -39,12 +39,11 @@
             padding: 26px 22px 22px; box-shadow: 0 10px 26px rgba(1,178,173,0.10);
         }
         .corner-stamp {
-            position: absolute; top: -18px; right: 16px; width: 66px; height: 66px; border-radius: 50%;
-            border: 2px solid var(--tangerine); background: rgba(255,255,255,0.92); transform: rotate(-13deg);
-            display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.15;
-            font-size: 9px; font-weight: 800; letter-spacing: 0.4px; color: var(--tangerine-dark);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            position: absolute; top: -22px; right: 16px; width: 70px; height: 70px;
+            transform: rotate(-13deg); pointer-events: none;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
         }
+        .corner-stamp img { width: 100%; height: 100%; object-fit: contain; }
         .passport-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
         .passport-eyebrow {
             font-size: 10.5px; font-weight: 700; letter-spacing: 1.4px; color: var(--sea-dark);
@@ -261,7 +260,7 @@
 <div class="app-container" id="mainApp" style="display:none;">
     <header class="passport-hero">
         <div class="passport-frame">
-            <div class="corner-stamp">GIMNYEONG<br>VILLAGE<br>★</div>
+            <div class="corner-stamp"><img src="stamp.png" alt="스탬프"></div>
             <div class="passport-row">
                 <span class="passport-eyebrow">STAMP PASSPORT</span>
                 <span class="passport-serial">NO. 2026-김녕</span>
