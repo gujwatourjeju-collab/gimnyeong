@@ -82,12 +82,8 @@
         }
         .member-greet { text-align: left; font-size: 13px; color: var(--ink-soft); font-weight: 600; }
         .member-greet strong { color: var(--ink); font-size: 14.5px; }
-        .point-badge { font-size: 12.5px; font-weight: 700; color: var(--tangerine-dark); }
-        .point-badge strong { font-size: 17px; }
-        .redeem-btn {
-            background: var(--ink); color: #fff; border: none; padding: 8px 14px; border-radius: 30px;
-            font-size: 12px; font-weight: 700; cursor: pointer;
-        }
+        .stamp-badge { font-size: 12.5px; font-weight: 700; color: var(--tangerine-dark); }
+        .stamp-badge strong { font-size: 17px; }
         .stamp-summary { margin-top: 12px; font-size: 12.5px; color: var(--ink-soft); font-weight: 700; }
         .stamp-summary strong { color: var(--tangerine-dark); font-size: 15px; }
         .progress-track { width: 100%; height: 7px; background: #efe8d6; border-radius: 10px; overflow: hidden; margin-top: 8px; }
@@ -227,11 +223,6 @@
             font-weight: 700; font-size: 13px;
         }
 
-        /* ===== 포인트 사용 코드 ===== */
-        .redeem-code-display {
-            text-align: center; font-size: 40px; font-weight: 800; letter-spacing: 6px; color: var(--tangerine-dark);
-            background: #fff3e8; border-radius: var(--radius-md); padding: 20px 10px; margin: 12px 0 16px;
-        }
     </style>
 </head>
 <body>
@@ -249,15 +240,12 @@
                 <span class="brand-main">우리동네<span class="brand-bolt">⚡</span></span><br>
                 <span class="brand-main">활력 <span class="brand-accent">플러스</span></span>
             </h1>
-            <p class="passport-desc">해녀마을 김녕리 골목상권 디지털 지도 · 매장 QR코드를 스캔해 감귤 도장을 모으고 포인트를 적립해보세요</p>
+            <p class="passport-desc">해녀마을 김녕리 골목상권 디지털 지도 · 매장 QR코드를 스캔해 감귤 도장을 모아보세요</p>
             <div class="campaign-strip">🗓 2026.7.3~11.13 매주 금요일 · <button onclick="openCampaignInfo()">골목상권 이용의 날 안내 ℹ️</button></div>
 
             <div class="member-row">
                 <div class="member-greet"><strong id="memberName">-</strong>님, 환영합니다</div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <div class="point-badge"><strong id="pointBalance">0</strong>P</div>
-                    <button class="redeem-btn" onclick="openRedeem()">사용하기</button>
-                </div>
+                <div class="stamp-badge"><strong id="stampBadgeNum">0</strong>번째 스탬프</div>
             </div>
             <div class="stamp-summary">
                 <strong id="stampCountNum">0</strong>/<span id="stampTotalNum">27</span> 매장 스탬프 수집
@@ -341,30 +329,6 @@
     </div>
 </div>
 
-<!-- 포인트 사용 -->
-<div class="overlay" id="redeemOverlay" onclick="closeRedeemOnBg(event)">
-    <div class="modal">
-        <div id="redeemForm">
-            <div class="modal-icon">🎟️</div>
-            <h3>포인트 사용하기</h3>
-            <p>사용할 포인트를 입력하면 매장에서 확인 가능한 6자리 코드가 발급돼요.</p>
-            <input id="redeemAmount" type="number" placeholder="사용할 포인트" style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);font-size:16px;margin-bottom:16px;">
-            <div class="modal-buttons">
-                <button class="modal-close-btn" onclick="closeRedeem()">닫기</button>
-                <button class="modal-btn" onclick="submitRedeem()">코드 발급</button>
-            </div>
-        </div>
-        <div id="redeemResult" style="display:none;">
-            <div class="modal-icon">✅</div>
-            <h3>발급 완료</h3>
-            <p>이 코드를 매장 직원에게 보여주세요.</p>
-            <div class="redeem-code-display" id="redeemCodeDisplay">000000</div>
-            <div class="modal-buttons">
-                <button class="modal-btn" onclick="closeRedeem()">확인</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- QR 스캐너 -->
 <div class="scan-overlay" id="scanOverlay">
@@ -415,7 +379,6 @@
     let session = JSON.parse(localStorage.getItem('gny_session') || 'null');
     let storesData = [];
     let myStamps = new Set();
-    let myBalance = 0;
 
     // ===== 지도 전용 핀치 줌 / 팬 (페이지 전체 확대와는 분리) =====
     (function initMapZoom() {
@@ -619,10 +582,9 @@
             return false;
         }
         myStamps = new Set(data.stamped_store_ids);
-        myBalance = data.balance;
 
         document.getElementById('memberName').innerText = data.name;
-        document.getElementById('pointBalance').innerText = myBalance.toLocaleString();
+        document.getElementById('stampBadgeNum').innerText = myStamps.size;
         document.getElementById('stampCountNum').innerText = myStamps.size;
         const total = storesData.length || 27;
         document.getElementById('progressFill').style.width = Math.round((myStamps.size/total)*100) + '%';
@@ -732,7 +694,7 @@
         if (data.already) {
             alert(`이미 [${data.store_name}] 스탬프를 받으셨어요.`);
         } else {
-            alert(`🍊 [${data.store_name}] 도장 획득! +${data.points_earned}P`);
+            alert(`🍊 [${data.store_name}] 도장 획득!`);
         }
         await refreshStatus();
     }
@@ -745,29 +707,6 @@
         }
     }
 
-    // ---------- 포인트 사용 ----------
-    function openRedeem() {
-        document.getElementById('redeemForm').style.display = '';
-        document.getElementById('redeemResult').style.display = 'none';
-        document.getElementById('redeemAmount').value = '';
-        document.getElementById('redeemOverlay').classList.add('show');
-    }
-    function closeRedeem() { document.getElementById('redeemOverlay').classList.remove('show'); }
-    function closeRedeemOnBg(e) { if (e.target.id === 'redeemOverlay') closeRedeem(); }
-
-    async function submitRedeem() {
-        const amount = parseInt(document.getElementById('redeemAmount').value, 10);
-        if (!amount || amount <= 0) { alert('사용할 포인트를 입력해주세요.'); return; }
-        if (amount > myBalance) { alert(`보유 포인트(${myBalance.toLocaleString()}P)보다 많아요.`); return; }
-
-        const { data, error } = await sb.rpc('request_redeem', { p_session_token: session.session_token, p_points: amount });
-        if (error) { alert('코드 발급에 실패했어요: ' + error.message); return; }
-
-        document.getElementById('redeemCodeDisplay').innerText = data.code;
-        document.getElementById('redeemForm').style.display = 'none';
-        document.getElementById('redeemResult').style.display = '';
-        await refreshStatus();
-    }
 
     boot();
 </script>
