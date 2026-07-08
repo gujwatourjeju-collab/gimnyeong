@@ -259,11 +259,11 @@
         <div class="map-zoom-layer" id="mapZoomLayer">
             <div class="map-bg-image"></div>
             <div id="markersHost"></div>
-            <div class="stamp-layer" id="stamp0" style="left: 14.7%; top: 83.9%;">🍊</div>
-            <div class="stamp-layer" id="stamp1" style="left: 28.8%; top: 83.9%;">🍊</div>
-            <div class="stamp-layer" id="stamp2" style="left: 43.2%; top: 84.1%;">🍊</div>
-            <div class="stamp-layer" id="stamp3" style="left: 57.4%; top: 83.9%;">🍊</div>
-            <div class="stamp-layer" id="stamp4" style="left: 71.6%; top: 83.7%;">🍊</div>
+            <div class="stamp-layer" id="stamp0" style="left: 14.6%; top: 83.8%;">🍊</div>
+            <div class="stamp-layer" id="stamp1" style="left: 28.9%; top: 84.0%;">🍊</div>
+            <div class="stamp-layer" id="stamp2" style="left: 43.2%; top: 83.4%;">🍊</div>
+            <div class="stamp-layer" id="stamp3" style="left: 57.5%; top: 83.5%;">🍊</div>
+            <div class="stamp-layer" id="stamp4" style="left: 71.8%; top: 83.6%;">🍊</div>
         </div>
     </div>
     <div class="map-caption">🤏 두 손가락으로 지도를 확대·축소할 수 있어요</div>
@@ -347,33 +347,33 @@
 
     // 지도 마커 위치 (매장 "이름"으로 매칭 — DB에서 반환되는 순서와 무관하게 항상 정확함)
     const POSITIONS = {
-        '청춘당꽈배기':      {left:'12.5%', top:'47.8%'},
-        '기억제주맛집':      {left:'18.9%', top:'50.5%'},
-        '김녕빵집':          {left:'23.9%', top:'45.9%'},
-        '김녕에사는김영훈':   {left:'23.6%', top:'54.8%'},
-        '김녕옥상회':        {left:'29.7%', top:'41.1%'},
-        '제프버거':          {left:'29.2%', top:'48.7%'},
-        '본초불닭발':        {left:'29.0%', top:'56.4%'},
-        '스페샬펜션':        {left:'29.2%', top:'65.5%'},
-        '매코롬':            {left:'33.6%', top:'56.5%'},
-        '김녕챗':            {left:'33.5%', top:'37.1%'},
-        '김녕서랍':          {left:'37.4%', top:'41.3%'},
-        '김녕소품샵':        {left:'35.5%', top:'48.5%'},
-        '한라식당':          {left:'42.3%', top:'38.0%'},
-        '영월갈비':          {left:'41.9%', top:'47.1%'},
-        '청굴식당':          {left:'42.7%', top:'55.4%'},
-        '인수네':            {left:'46.9%', top:'41.8%'},
-        '신미식당':          {left:'47.3%', top:'51.7%'},
-        '으뜸원':            {left:'53.3%', top:'37.6%'},
-        'BHC':               {left:'53.4%', top:'49.6%'},
-        '파란소리':          {left:'58.4%', top:'37.9%'},
-        '씨유':              {left:'55.8%', top:'58.4%'},
-        '킹마트':            {left:'60.8%', top:'46.6%'},
-        '더벤티':            {left:'63.8%', top:'53.4%'},
-        '김녕홀리다':        {left:'66.4%', top:'44.9%'},
-        '대복해장국':        {left:'74.0%', top:'41.5%'},
-        '모산봉':            {left:'78.9%', top:'39.6%'},
-        '김녕나루터':        {left:'84.4%', top:'31.8%'}
+        '청춘당 꽈배기 김녕점': {left:'9.6%',  top:'41.2%'},
+        '제프':                  {left:'15.3%', top:'36.5%'},
+        '기억제주맛집':          {left:'13.6%', top:'46.2%'},
+        '김녕빵집':              {left:'18.7%', top:'39.8%'},
+        '새마을금고':            {left:'25.2%', top:'42.8%'},
+        '김녕에사는 김영훈':     {left:'18.4%', top:'49.8%'},
+        '본초불닭발 김녕점':     {left:'23.9%', top:'51.7%'},
+        '매코롬':                {left:'28.6%', top:'52.6%'},
+        '스페샬펜션':            {left:'26.1%', top:'61.9%'},
+        '김녕챗':                {left:'32.6%', top:'44.0%'},
+        '김녕옥상회':            {left:'35.8%', top:'43.9%'},
+        '김녕서랍':              {left:'35.8%', top:'43.7%'},
+        '영월갈비':              {left:'40.0%', top:'44.9%'},
+        '한라식당':              {left:'44.4%', top:'44.9%'},
+        '청굴식당':              {left:'45.8%', top:'53.6%'},
+        '인수네 정육식당':       {left:'49.1%', top:'41.7%'},
+        '신미식당':              {left:'53.5%', top:'50.3%'},
+        'CU 김녕리점':           {left:'58.2%', top:'46.5%'},
+        'BHC치킨 김녕점':        {left:'68.1%', top:'42.2%'},
+        '김녕홀리다':            {left:'73.4%', top:'40.0%'},
+        '킹마트':                {left:'71.7%', top:'50.9%'},
+        '더벤티 김녕점':         {left:'74.7%', top:'50.9%'},
+        '파란소리 음악학원':     {left:'72.9%', top:'29.7%'},
+        '으뜸원 마늘갈비':       {left:'77.3%', top:'27.5%'},
+        '대복해장국':            {left:'79.0%', top:'38.4%'},
+        '김녕소품샵':            {left:'84.2%', top:'36.0%'},
+        '김녕나루터':            {left:'90.4%', top:'24.1%'},
     };
 
     let session = JSON.parse(localStorage.getItem('gny_session') || 'null');
