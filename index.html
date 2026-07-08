@@ -235,6 +235,50 @@
         }
         .auth-note { font-size: 11.5px; color: var(--ink-soft); background: #f7faf9; padding: 10px 12px; border-radius: var(--radius-md); margin-top: 4px; line-height: 1.5; }
 
+        /* ===== 캠페인 안내 모달 ===== */
+        .campaign-scroll { max-height: 70vh; overflow-y: auto; padding-right: 2px; }
+        .campaign-scroll::-webkit-scrollbar { width: 4px; }
+        .campaign-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+        .step-heading {
+            font-size: 13px; font-weight: 800; color: var(--sea-dark);
+            border-bottom: 2px solid var(--sea-light); padding-bottom: 6px; margin: 18px 0 10px;
+        }
+        .step-heading:first-child { margin-top: 4px; }
+        .step-row {
+            display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;
+        }
+        .step-num {
+            flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+            background: var(--sea); color: #fff; font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; margin-top: 1px;
+        }
+        .step-body { font-size: 13px; line-height: 1.55; color: var(--ink); }
+        .step-body strong { display: block; font-weight: 700; margin-bottom: 2px; }
+        .step-body small { color: var(--ink-soft); font-size: 11.5px; }
+        .step-sub { color: var(--tangerine-dark); font-size: 11.5px; font-weight: 700; margin-top: 3px; display: block; }
+        .info-row {
+            display: flex; gap: 6px; align-items: center; font-size: 12.5px;
+            color: var(--ink-soft); margin-bottom: 8px; font-weight: 600;
+        }
+        .reward-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 4px; }
+        .reward-card {
+            background: var(--sea-light); border-radius: 10px; padding: 10px 11px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .reward-card.gold { background: #fff3e8; }
+        .reward-num {
+            font-size: 16px; font-weight: 900; color: var(--sea-dark); line-height: 1; flex-shrink: 0;
+        }
+        .reward-card.gold .reward-num { color: var(--tangerine-dark); }
+        .reward-info strong { display: block; font-size: 12px; font-weight: 700; color: var(--ink); }
+        .reward-info small { font-size: 11px; color: var(--ink-soft); }
+        .store-category { font-size: 11.5px; font-weight: 800; color: var(--ink); margin: 10px 0 4px; }
+        .store-tags { font-size: 12px; color: var(--ink-soft); line-height: 1.7; }
+        .campaign-deadline {
+            text-align: center; font-size: 13px; font-weight: 800; color: var(--ink);
+            margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line);
+        }
+
         /* ===== QR 스캐너 ===== */
         .scan-overlay {
             position: fixed; inset: 0; background: #000; z-index: 200; display: none;
@@ -326,17 +370,70 @@
 <!-- 캠페인 안내 -->
 <div class="overlay" id="campaignOverlay" onclick="closeCampaignOnBg(event)">
     <div class="modal">
-        <div class="modal-icon">⚡</div>
         <span class="modal-meta">MG우정새마을금고와 함께하는</span>
-        <h3>우리동네 활력플러스</h3>
+        <h3 style="margin:6px 0 4px;">우리동네 활력플러스</h3>
         <span class="modal-meta" style="background:#fff3e8;color:var(--tangerine-dark);">골목상권 이용의 날</span>
-        <div class="modal-info-box" style="margin-top:14px;">
-            <div><span class="label">기간</span><span>2026. 7. 3(금) ~ 11. 13(금), 매주 금요일</span></div>
-            <div><span class="label">대상</span><span>관광객 및 도민 누구나</span></div>
-            <div><span class="label">장소</span><span>김녕리 내 상권 (지정 참여매장 27곳)</span></div>
-            <div><span class="label">내용</span><span>스탬프 투어로 김녕 상권 할인 혜택 &amp; 상가 홍보</span></div>
+
+        <div class="campaign-scroll">
+            <!-- STEP 1 -->
+            <div class="step-heading">STEP 1. 코인 &amp; 스탬프 가이드</div>
+            <div class="info-row">🕙 매주 금요일 11:00~14:00 &nbsp;|&nbsp; 📍 세기알해변 어울림센터 앞 부스</div>
+
+            <div class="step-row">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <strong>세기알 부스 SNS 인증 (코인 받기)</strong>
+                    부스에 들러 즐거운 홍보인증샷을 SNS에 업로드해주세요.
+                    <span class="step-sub">웰컴 5,000원 할인코인 제공 (1인 1일 1회)</span>
+                </div>
+            </div>
+            <div class="step-row">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <strong>지정상권 골목매장 방문 (사용 &amp; 적립)</strong>
+                    결제 시 코인을 내면 즉시 5천원 할인! 동시에 QR 스캔으로 해리 스탬프도 적립!
+                </div>
+            </div>
+            <div class="step-row">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <strong>굿즈 부스 교환 (혜택 완성)</strong>
+                    세기알 부스로 돌아와 스탬프 개수별 한정판 선물 수령!
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="step-heading">STEP 2. 차곡차곡 리워드</div>
+            <div class="reward-grid">
+                <div class="reward-card">
+                    <div class="reward-num">1개</div>
+                    <div class="reward-info"><strong>김녕제작 볼펜</strong><small>귀여운 캐릭터 볼펜</small></div>
+                </div>
+                <div class="reward-card">
+                    <div class="reward-num">3개</div>
+                    <div class="reward-info"><strong>에코백 / 오란다</strong><small>감성 에코백 또는 디저트</small></div>
+                </div>
+                <div class="reward-card">
+                    <div class="reward-num">5개</div>
+                    <div class="reward-info"><strong>구좌 피규어</strong><small>구좌 캐릭터 미니 피규어</small></div>
+                </div>
+                <div class="reward-card gold">
+                    <div class="reward-num">👑</div>
+                    <div class="reward-info"><strong>최다 적립자</strong><small>자체제작 한정판 반팔티</small></div>
+                </div>
+            </div>
+
+            <!-- 참여매장 -->
+            <div class="step-heading">참여 매장</div>
+            <div class="store-category">🍽 식음료 / 맛집</div>
+            <div class="store-tags">기억제주맛집, 본초불닭발, 매코롬, 신미식당, 영월갈비, 청굴식당, 한라식당, 인수네정육식당, BHC치킨 김녕점, 으뜸원마늘갈비, 대복해장국, 모산봉, 김녕나루터, 김녕홀리다</div>
+            <div class="store-category">☕ 카페 / 베이커리 / 소품</div>
+            <div class="store-tags">김녕에사는김영훈, 더벤티, 김녕옥상회, 김녕빵집, 청춘당꽈배기, 제프, 김녕소품샵, 김녕챗, 김녕서랍, CU 김녕리점, 킹마트, 스페샬펜션 등</div>
+
+            <div class="campaign-deadline">📅 2026년 7월 3일 ~ 11월 13일 (금)까지</div>
         </div>
-        <div class="modal-buttons">
+
+        <div class="modal-buttons" style="margin-top:16px;">
             <button class="modal-btn" onclick="closeCampaignInfo()">확인</button>
         </div>
     </div>
