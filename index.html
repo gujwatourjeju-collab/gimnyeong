@@ -222,6 +222,14 @@
         }
 
         /* ===== 회원가입 ===== */
+        .auth-stamp-corner {
+            position: absolute; top: -22px; right: 14px;
+            width: 68px; height: 68px; transform: rotate(-13deg);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18));
+            pointer-events: none;
+        }
+        .auth-stamp-corner img { width: 100%; height: 100%; object-fit: contain; }
+        .auth-brand-title { margin: 0 0 10px 0; line-height: 1.2; }
         .auth-card input {
             width: 100%; padding: 13px 14px; border-radius: var(--radius-md); border: 1.5px solid var(--line);
             font-size: 14px; margin-bottom: 10px; font-family: inherit;
@@ -302,7 +310,11 @@
 <!-- 회원가입 -->
 <div class="overlay show" id="authOverlay">
     <div class="modal auth-card">
-        <h3>우리동네 활력 플러스</h3>
+        <div class="auth-stamp-corner"><img src="stamp.png" alt="스탬프"></div>
+        <h3 class="auth-brand-title">
+            <span class="brand-main">우리동네<span class="brand-bolt">⚡</span></span><br>
+            <span class="brand-main">활력 <span class="brand-accent">플러스</span></span>
+        </h3>
         <div class="modal-meta">김녕 골목상권 이용의 날</div>
         <p>이름과 전화번호만 입력하면 바로 시작할 수 있어요. 다음 방문부터는 같은 번호로 자동으로 이어집니다.</p>
         <input id="authName" placeholder="이름" maxlength="20">
