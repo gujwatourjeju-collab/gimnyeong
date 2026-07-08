@@ -394,13 +394,15 @@
         '파란소리 음악학원':     {left:'72.9%', top:'29.7%'},
         '으뜸원 마늘갈비':       {left:'77.3%', top:'27.5%'},
         '대복해장국':            {left:'79.0%', top:'38.4%'},
+        '모산봉':                {left:'79.0%', top:'38.4%'},
         '김녕소품샵':            {left:'84.2%', top:'36.0%'},
         '김녕나루터':            {left:'90.4%', top:'24.1%'},
     };
 
     // 같은 건물에 있는 매장 묶음 — 마커 하나에 팝업으로 선택
     const GROUPS = [
-        ['김녕옥상회', '김녕서랍']
+        ['김녕옥상회', '김녕서랍'],
+        ['대복해장국', '모산봉']
     ];
     const SECONDARY = new Set(GROUPS.flatMap(g => g.slice(1)));
     const GROUP_BY_PRIMARY = Object.fromEntries(GROUPS.map(g => [g[0], g]));
