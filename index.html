@@ -83,10 +83,29 @@
         .member-greet strong { color: var(--ink); font-size: 14.5px; }
         .stamp-badge { font-size: 12.5px; font-weight: 700; color: var(--tangerine-dark); }
         .stamp-badge strong { font-size: 17px; }
-        .stamp-summary { margin-top: 12px; font-size: 12.5px; color: var(--ink-soft); font-weight: 700; }
+        .stamp-summary { margin-top: 12px; font-size: 12.5px; color: var(--ink-soft); font-weight: 700; cursor: pointer; }
         .stamp-summary strong { color: var(--tangerine-dark); font-size: 15px; }
+        .stamp-summary-arrow { color: var(--sea-dark); font-weight: 800; margin-left: 2px; }
         .progress-track { width: 100%; height: 7px; background: #efe8d6; border-radius: 10px; overflow: hidden; margin-top: 8px; }
         .progress-fill { height: 100%; background: var(--tangerine); border-radius: 10px; transition: width 0.4s ease; width: 0%; }
+
+        /* ===== 방문 매장 목록 모달 ===== */
+        .visited-store-list { display: flex; flex-direction: column; gap: 8px; }
+        .visited-store-item {
+            display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: var(--radius-md);
+            background: #f7faf9; border: 1px solid #eef2f1; cursor: pointer; text-align: left; width: 100%;
+            font-family: inherit;
+        }
+        .visited-store-item:active { background: #eef6f5; }
+        .visited-store-check {
+            width: 22px; height: 22px; border-radius: 50%; background: var(--sea); display: flex;
+            align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .visited-store-check svg { width: 12px; height: 12px; }
+        .visited-store-info { flex: 1; min-width: 0; }
+        .visited-store-name { display: block; font-size: 13.5px; font-weight: 700; color: var(--ink); }
+        .visited-store-cat { display: block; font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+        .visited-empty { text-align: center; padding: 30px 10px; color: var(--ink-soft); font-size: 13px; line-height: 1.6; }
 
         /* ===== 지도 ===== */
         .map-wrap {
@@ -330,8 +349,8 @@
                 <div class="member-greet"><strong id="memberName">-</strong>님, 환영합니다</div>
                 <div class="stamp-badge"><strong id="stampBadgeNum">0</strong>번째 스탬프</div>
             </div>
-            <div class="stamp-summary">
-                <strong id="stampCountNum">0</strong>/<span id="stampTotalNum">27</span> 매장 스탬프 수집
+            <div class="stamp-summary" onclick="openVisitedList()">
+                <strong id="stampCountNum">0</strong>/<span id="stampTotalNum">27</span> 매장 스탬프 수집 <span class="stamp-summary-arrow">›</span>
                 <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
             </div>
         </div>
@@ -464,6 +483,19 @@
         </div>
         <div class="modal-buttons">
             <button class="modal-close-btn" onclick="closeModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 방문 매장 목록 -->
+<div class="overlay" id="visitedOverlay" onclick="closeVisitedOnBg(event)">
+    <div class="modal">
+        <div class="modal-icon">📍</div>
+        <h3>내가 모은 스탬프</h3>
+        <span class="modal-meta"><strong id="visitedCountNum">0</strong>/<span id="visitedTotalNum">27</span> 매장 방문 완료</span>
+        <div class="campaign-scroll" id="visitedListBody" style="margin-top: 4px;"></div>
+        <div class="modal-buttons" style="margin-top: 16px;">
+            <button class="modal-close-btn" style="width:100%;" onclick="closeVisitedList()">닫기</button>
         </div>
     </div>
 </div>
@@ -817,6 +849,47 @@
 
     function openCampaignInfo() { document.getElementById('campaignOverlay').classList.add('show'); }
     function closeCampaignInfo() { document.getElementById('campaignOverlay').classList.remove('show'); }
+
+    // ---------- 방문 매장 목록 ----------
+    function openVisitedList() {
+        renderVisitedList();
+        document.getElementById('visitedOverlay').classList.add('show');
+    }
+    function closeVisitedList() { document.getElementById('visitedOverlay').classList.remove('show'); }
+    function closeVisitedOnBg(e) { if (e.target.id === 'visitedOverlay') closeVisitedList(); }
+
+    function renderVisitedList() {
+        const total = storesData.length || 27;
+        document.getElementById('visitedCountNum').innerText = myStamps.size;
+        document.getElementById('visitedTotalNum').innerText = total;
+
+        const visited = storesData.filter(s => myStamps.has(s.id));
+        const body = document.getElementById('visitedListBody');
+        body.innerHTML = '';
+
+        if (visited.length === 0) {
+            body.innerHTML = '<div class="visited-empty">아직 모은 스탬프가 없어요.<br>매장 QR을 스캔해서 첫 스탬프를 모아보세요! 🏃</div>';
+            return;
+        }
+
+        const list = document.createElement('div');
+        list.className = 'visited-store-list';
+        visited.forEach(s => {
+            const item = document.createElement('button');
+            item.className = 'visited-store-item';
+            item.innerHTML = `
+                <span class="visited-store-check"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 10 18 20 6"></polyline></svg></span>
+                <span class="visited-store-info">
+                    <span class="visited-store-name"></span>
+                    <span class="visited-store-cat"></span>
+                </span>`;
+            item.querySelector('.visited-store-name').textContent = s.name;
+            item.querySelector('.visited-store-cat').textContent = s.category || '매장';
+            item.onclick = () => { closeVisitedList(); openStoreModal(s.id); };
+            list.appendChild(item);
+        });
+        body.appendChild(list);
+    }
     function closeCampaignOnBg(e) { if (e.target.id === 'campaignOverlay') closeCampaignInfo(); }
 
     // ---------- QR 스캐너 ----------
