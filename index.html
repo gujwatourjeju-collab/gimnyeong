@@ -319,13 +319,27 @@
             display: flex; align-items: center; justify-content: center;
             transition: opacity 0.4s ease;
         }
-        .splash-screen img { width: 320px; max-width: 70vw; height: auto; }
+        .splash-logo-wrap {
+            display: flex; flex-direction: column; align-items: center;
+            width: 320px; max-width: 70vw;
+        }
+        .splash-logo-wrap img.splash-quest {
+            width: 57%; height: auto; margin-bottom: -14px; position: relative; z-index: 2;
+        }
+        .splash-logo-wrap img.splash-logo {
+            width: 100%; height: auto; display: block; position: relative; z-index: 1;
+        }
         .splash-screen.hide { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body>
 
-<div class="splash-screen" id="splashScreen"><img src="logo.png" alt="로고"></div>
+<div class="splash-screen" id="splashScreen">
+    <div class="splash-logo-wrap">
+        <img class="splash-logo" src="logo.png" alt="로고">
+        <img class="splash-quest" src="quest.png" alt="퀘스트">
+    </div>
+</div>
 
 <div class="app-container" id="mainApp" style="display:none;">
     <header class="passport-hero">
