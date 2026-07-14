@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 메뉴 설문</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700;900&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --paper: #f3ede0;
+    --paper-dark: #e8dfc8;
+    --ink: #26241f;
+    --stamp: #b8362a;
+    --stamp-dark: #8f2a20;
+    --gold: #b8863b;
+    --line: #d8cca8;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(184,134,59,0.07), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(184,54,42,0.06), transparent 45%),
+      var(--paper);
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--ink);
+    padding: 28px 14px 60px;
+    display:flex;
+    justify-content:center;
+  }
+
+  .wrap{ width:100%; max-width:460px; }
+
+  /* ---------- ticket card ---------- */
+  .ticket{
+    background: #fbf8ef;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03), 0 14px 30px -18px rgba(38,36,31,0.35);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ticket::before, .ticket::after{
+    content:"";
+    position:absolute;
+    width:20px; height:20px;
+    background: var(--paper);
+    border-radius:50%;
+    top: 148px;
+  }
+  .ticket::before{ left:-10px; box-shadow: 0 0 0 1px var(--line) inset; }
+  .ticket::after{ right:-10px; box-shadow: 0 0 0 1px var(--line) inset; }
+
+  .head{
+    padding: 26px 28px 20px;
+    border-bottom: 1px dashed var(--line);
+    position: relative;
+  }
+
+  .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  h1{
+    font-family:'Gowun Batang', serif;
+    font-size: 30px;
+    line-height:1.25;
+    margin: 6px 0 14px;
+  }
+
+  .meta{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-size:14px;
+    color:#57503f;
+  }
+  .meta b{ color: var(--ink); font-weight:600; }
+  .meta .row{ display:flex; gap:8px; align-items:baseline; }
+  .meta .tag{
+    font-family:'Space Mono', monospace;
+    font-size:10.5px;
+    color: var(--gold);
+    width:46px;
+    flex-shrink:0;
+    letter-spacing:1px;
+  }
+
+  .stamp{
+    position:absolute;
+    top:18px; right:22px;
+    width:60px; height:60px;
+    border-radius:50%;
+    border:2.5px solid var(--stamp);
+    color: var(--stamp);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform: rotate(-12deg);
+    font-family:'Gowun Batang', serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:1px;
+    text-align:center;
+    line-height:1.15;
+    opacity:0.85;
+  }
+
+  /* ---------- body / tabs ---------- */
+  .tabs{
+    display:flex;
+    border-bottom: 1px solid var(--line);
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding: 13px 0;
+    font-size:13px;
+    font-weight:600;
+    color:#a39a7d;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:'Noto Sans KR', sans-serif;
+    transition: color .15s;
+  }
+  .tab.active{ color: var(--stamp); box-shadow: inset 0 -2px 0 var(--stamp); }
+
+  .panel{ padding: 24px 28px 30px; display:none; }
+  .panel.active{ display:block; }
+
+  label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:#6b6248;
+    margin: 18px 0 7px;
+    letter-spacing:0.3px;
+  }
+  label.first{ margin-top:0; }
+
+  input[type=text], input[type=date]{
+    width:100%;
+    padding: 11px 13px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:#fff;
+    font-size:15px;
+    font-family:'Noto Sans KR', sans-serif;
+    color: var(--ink);
+  }
+  input[type=text]:focus, input[type=date]:focus{
+    outline:none;
+    border-color: var(--gold);
+  }
+
+  .options{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+  .opt{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 12px 14px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    cursor:pointer;
+    background:#fff;
+    transition: border-color .12s, background .12s;
+    font-size:14.5px;
+  }
+  .opt:hover{ border-color:#c9b98a; }
+  .opt.picked{ border-color: var(--stamp); background: #fbeeec; }
+  .opt input{ accent-color: var(--stamp); width:16px; height:16px; flex-shrink:0; }
+
+  .submit-btn{
+    width:100%;
+    margin-top:22px;
+    padding: 14px 0;
+    background: var(--stamp);
+    color:#fdf6f1;
+    border:none;
+    border-radius:4px;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+    transition: background .15s, transform .1s;
+  }
+  .submit-btn:hover{ background: var(--stamp-dark); }
+  .submit-btn:active{ transform: scale(0.98); }
+  .submit-btn:disabled{ background:#cbbfa4; cursor:not-allowed; }
+
+  .hint{ font-size:12px; color:#a39a7d; margin-top:10px; }
+  .error{ font-size:12.5px; color: var(--stamp); margin-top:10px; display:none; }
+
+  /* ---------- confirmation ---------- */
+  .confirm{ text-align:center; padding: 10px 0 6px; }
+  .confirm .mark{
+    width:76px; height:76px; margin:6px auto 16px;
+    border-radius:50%;
+    border:3px solid var(--stamp);
+    color:var(--stamp);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Gowun Batang', serif;
+    font-size:15px; font-weight:700;
+    transform: rotate(-10deg);
+  }
+  .confirm p{ font-size:14px; color:#6b6248; line-height:1.6; }
+  .confirm .again{
+    margin-top:16px;
+    background:none;
+    border:1px solid var(--line);
+    padding:9px 18px;
+    border-radius:4px;
+    font-size:13px;
+    color:#6b6248;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+
+  /* ---------- admin ---------- */
+  .pin-row{ display:flex; gap:8px; }
+  .pin-row input{ flex:1; }
+  .pin-row button{
+    padding: 0 16px;
+    border:none;
+    border-radius:4px;
+    background: var(--ink);
+    color:#fbf8ef;
+    font-weight:600;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+
+  .menu-edit-row{
+    display:flex; gap:8px; margin-bottom:8px; align-items:center;
+  }
+  .menu-edit-row input{ flex:1; }
+  .menu-edit-row button{
+    width:32px; height:32px; flex-shrink:0;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:4px;
+    color:var(--stamp);
+    font-size:16px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .add-menu-btn{
+    width:100%;
+    padding:10px 0;
+    border:1px dashed var(--line);
+    background:none;
+    border-radius:4px;
+    color:#6b6248;
+    font-size:13px;
+    cursor:pointer;
+    margin-top:2px;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+
+  .save-btn{
+    width:100%;
+    margin-top:22px;
+    padding:13px 0;
+    background: var(--ink);
+    color:#fbf8ef;
+    border:none;
+    border-radius:4px;
+    font-size:14.5px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .saved-flash{
+    text-align:center; font-size:12.5px; color: var(--gold);
+    margin-top:10px; height:16px;
+  }
+
+  .divider{
+    margin: 26px 0 16px;
+    display:flex; align-items:center; gap:10px;
+    color:#a39a7d; font-size:11px; letter-spacing:2px;
+    font-family:'Space Mono', monospace;
+  }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--line); }
+
+  .tally-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:13.5px; padding:8px 0; border-bottom:1px solid var(--line);
+  }
+  .tally-row:last-child{ border-bottom:none; }
+  .tally-bar{
+    flex:1; height:6px; background:var(--paper-dark); border-radius:3px; margin:0 10px;
+    overflow:hidden;
+  }
+  .tally-bar span{ display:block; height:100%; background:var(--stamp); }
+
+  .resp-list{ margin-top:10px; max-height:220px; overflow-y:auto; }
+  .resp-item{
+    display:flex; justify-content:space-between; gap:8px;
+    font-size:12.5px; color:#57503f; padding:7px 0; border-bottom:1px solid var(--line);
+  }
+  .resp-item .who{ color:var(--ink); font-weight:600; }
+  .resp-item button{
+    border:none; background:none; color:var(--stamp); cursor:pointer; font-size:12px;
+  }
+  .reset-btn{
+    margin-top:14px; width:100%; padding:10px 0;
+    border:1px solid var(--stamp); background:none; color:var(--stamp);
+    border-radius:4px; font-size:12.5px; cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+
+  .foot-note{
+    text-align:center; font-size:11px; color:#a39a7d; margin-top:16px;
+    font-family:'Space Mono', monospace; letter-spacing:0.5px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ticket">
+    <div class="head">
+      <div class="eyebrow">MEAL VOTE · 오늘의 메뉴</div>
+      <h1 id="hRestaurant">식당명 불러오는 중…</h1>
+      <div class="meta">
+        <div class="row"><span class="tag">DATE</span><b id="hDate">-</b></div>
+        <div class="row"><span class="tag">PLACE</span><span id="hLocation">-</span></div>
+      </div>
+      <div class="stamp">오늘의<br>메뉴</div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="vote">설문 참여</button>
+      <button class="tab" data-tab="admin">관리자</button>
+    </div>
+
+    <!-- ===== 참여 패널 ===== -->
+    <div class="panel active" id="panel-vote">
+      <div id="voteForm">
+        <label class="first">이름</label>
+        <input type="text" id="inName" placeholder="이름을 입력하세요">
+
+        <label>소속 (학교명)</label>
+        <input type="text" id="inSchool" placeholder="예: 제주대학교">
+
+        <label>메뉴 선택</label>
+        <div class="options" id="optionList"></div>
+
+        <div class="error" id="voteError">이름, 소속, 메뉴를 모두 입력해 주세요.</div>
+        <button class="submit-btn" id="submitBtn">제출하기</button>
+      </div>
+
+      <div class="confirm" id="confirmBox" style="display:none;">
+        <div class="mark">제출<br>완료</div>
+        <p id="confirmText"></p>
+        <button class="again" id="againBtn">다시 참여하기</button>
+      </div>
+    </div>
+
+    <!-- ===== 관리자 패널 ===== -->
+    <div class="panel" id="panel-admin">
+      <div id="pinGate">
+        <label class="first">관리자 비밀번호</label>
+        <div class="pin-row">
+          <input type="text" id="pinInput" placeholder="비밀번호 입력">
+          <button id="pinBtn">입장</button>
+        </div>
+        <div class="hint">기본 비밀번호는 0000 입니다. (코드에서 변경 가능)</div>
+      </div>
+
+      <div id="adminBody" style="display:none;">
+        <label class="first">날짜</label>
+        <input type="date" id="admDate">
+
+        <label>식당 이름</label>
+        <input type="text" id="admRestaurant">
+
+        <label>식당 위치</label>
+        <input type="text" id="admLocation">
+
+        <label>객관식 메뉴 목록</label>
+        <div id="menuEditList"></div>
+        <button class="add-menu-btn" id="addMenuBtn">+ 메뉴 추가</button>
+
+        <button class="save-btn" id="saveBtn">저장하기</button>
+        <div class="saved-flash" id="savedFlash"></div>
+
+        <div class="divider">RESULTS</div>
+        <div id="tally"></div>
+
+        <div class="divider">RESPONSES · <span id="respCount">0</span></div>
+        <div class="resp-list" id="respList"></div>
+        <button class="reset-btn" id="resetBtn">응답 전체 초기화</button>
+      </div>
+    </div>
+
+    <div class="foot-note" id="footNote">— GIMNYEONG · 우리동네 활력플러스 —</div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PIN = "0000"; // 관리자 비밀번호. 필요하면 여기서 변경하세요.
+
+const DEFAULT_CONFIG = {
+  date: new Date().toISOString().slice(0,10),
+  restaurant: "식당 이름을 입력해 주세요",
+  location: "위치를 입력해 주세요",
+  menu: ["메뉴 1", "메뉴 2", "메뉴 3"]
+};
+
+let config = null;
+let responses = [];
+let adminUnlocked = false;
+let pickedMenu = null;
+
+function fmtDate(d){
+  if(!d) return "-";
+  const dt = new Date(d + "T00:00:00");
+  const days = ["일","월","화","수","목","금","토"];
+  return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')} (${days[dt.getDay()]})`;
+}
+
+async function loadConfig(){
+  try{
+    const res = await window.storage.get('meal-survey-config', true);
+    config = JSON.parse(res.value);
+  }catch(e){
+    config = {...DEFAULT_CONFIG};
+    await window.storage.set('meal-survey-config', JSON.stringify(config), true);
+  }
+}
+
+async function loadResponses(){
+  try{
+    const res = await window.storage.get('meal-survey-responses', true);
+    responses = JSON.parse(res.value);
+  }catch(e){
+    responses = [];
+  }
+}
+
+async function saveConfig(){
+  await window.storage.set('meal-survey-config', JSON.stringify(config), true);
+}
+
+async function saveResponses(){
+  await window.storage.set('meal-survey-responses', JSON.stringify(responses), true);
+}
+
+function renderHeader(){
+  document.getElementById('hRestaurant').textContent = config.restaurant;
+  document.getElementById('hDate').textContent = fmtDate(config.date);
+  document.getElementById('hLocation').textContent = config.location;
+}
+
+function renderOptions(){
+  const list = document.getElementById('optionList');
+  list.innerHTML = '';
+  config.menu.forEach((m, i) => {
+    const div = document.createElement('label');
+    div.className = 'opt' + (pickedMenu === m ? ' picked' : '');
+    div.innerHTML = `<input type="radio" name="menuOpt" value="${i}" ${pickedMenu===m?'checked':''}><span>${m}</span>`;
+    div.addEventListener('click', () => {
+      pickedMenu = m;
+      renderOptions();
+    });
+    list.appendChild(div);
+  });
+}
+
+function renderAdminForm(){
+  document.getElementById('admDate').value = config.date;
+  document.getElementById('admRestaurant').value = config.restaurant;
+  document.getElementById('admLocation').value = config.location;
+  renderMenuEditList();
+  renderTally();
+  renderRespList();
+}
+
+function renderMenuEditList(){
+  const wrap = document.getElementById('menuEditList');
+  wrap.innerHTML = '';
+  config.menu.forEach((m, i) => {
+    const row = document.createElement('div');
+    row.className = 'menu-edit-row';
+    row.innerHTML = `<input type="text" data-idx="${i}" value="${m.replace(/"/g,'&quot;')}"><button data-del="${i}">×</button>`;
+    wrap.appendChild(row);
+  });
+  wrap.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      config.menu[+e.target.dataset.idx] = e.target.value;
+    });
+  });
+  wrap.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      config.menu.splice(+btn.dataset.del, 1);
+      renderMenuEditList();
+    });
+  });
+}
+
+function renderTally(){
+  const wrap = document.getElementById('tally');
+  wrap.innerHTML = '';
+  if(config.menu.length === 0 || responses.length === 0){
+    wrap.innerHTML = '<div class="hint">아직 집계할 응답이 없습니다.</div>';
+    return;
+  }
+  const max = Math.max(1, ...config.menu.map(m => responses.filter(r => r.menu === m).length));
+  config.menu.forEach(m => {
+    const count = responses.filter(r => r.menu === m).length;
+    const pct = Math.round((count / max) * 100);
+    const row = document.createElement('div');
+    row.className = 'tally-row';
+    row.innerHTML = `<span>${m}</span><div class="tally-bar"><span style="width:${pct}%"></span></div><b>${count}</b>`;
+    wrap.appendChild(row);
+  });
+}
+
+function renderRespList(){
+  document.getElementById('respCount').textContent = responses.length;
+  const wrap = document.getElementById('respList');
+  wrap.innerHTML = '';
+  if(responses.length === 0){
+    wrap.innerHTML = '<div class="hint">응답이 없습니다.</div>';
+    return;
+  }
+  [...responses].reverse().forEach((r) => {
+    const realIdx = responses.indexOf(r);
+    const item = document.createElement('div');
+    item.className = 'resp-item';
+    item.innerHTML = `<span><span class="who">${r.name}</span> · ${r.school} · ${r.menu}</span><button data-idx="${realIdx}">삭제</button>`;
+    wrap.appendChild(item);
+  });
+  wrap.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      responses.splice(+btn.dataset.idx, 1);
+      await saveResponses();
+      renderRespList();
+      renderTally();
+    });
+  });
+}
+
+// ---------- tabs ----------
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- vote submit ----------
+document.getElementById('submitBtn').addEventListener('click', async () => {
+  const name = document.getElementById('inName').value.trim();
+  const school = document.getElementById('inSchool').value.trim();
+  const errEl = document.getElementById('voteError');
+
+  if(!name || !school || !pickedMenu){
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '제출 중…';
+
+  try{
+    await loadResponses();
+    responses.push({ name, school, menu: pickedMenu, ts: new Date().toISOString() });
+    await saveResponses();
+
+    document.getElementById('voteForm').style.display = 'none';
+    document.getElementById('confirmBox').style.display = 'block';
+    document.getElementById('confirmText').textContent =
+      `${name} (${school}) 님, "${pickedMenu}" 선택이 접수되었습니다.`;
+  }catch(e){
+    errEl.textContent = '제출 중 오류가 발생했습니다. 다시 시도해 주세요.';
+    errEl.style.display = 'block';
+  }finally{
+    btn.disabled = false;
+    btn.textContent = '제출하기';
+  }
+});
+
+document.getElementById('againBtn').addEventListener('click', () => {
+  document.getElementById('inName').value = '';
+  document.getElementById('inSchool').value = '';
+  pickedMenu = null;
+  renderOptions();
+  document.getElementById('confirmBox').style.display = 'none';
+  document.getElementById('voteForm').style.display = 'block';
+});
+
+// ---------- admin pin ----------
+document.getElementById('pinBtn').addEventListener('click', () => {
+  const val = document.getElementById('pinInput').value;
+  if(val === ADMIN_PIN){
+    adminUnlocked = true;
+    document.getElementById('pinGate').style.display = 'none';
+    document.getElementById('adminBody').style.display = 'block';
+    renderAdminForm();
+  }else{
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').placeholder = '비밀번호가 틀렸습니다';
+  }
+});
+
+document.getElementById('addMenuBtn').addEventListener('click', () => {
+  config.menu.push('새 메뉴');
+  renderMenuEditList();
+});
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  config.date = document.getElementById('admDate').value || config.date;
+  config.restaurant = document.getElementById('admRestaurant').value.trim() || config.restaurant;
+  config.location = document.getElementById('admLocation').value.trim() || config.location;
+  config.menu = config.menu.map(m => m.trim()).filter(m => m.length > 0);
+
+  await saveConfig();
+  renderHeader();
+  pickedMenu = null;
+  renderOptions();
+  renderTally();
+
+  const flash = document.getElementById('savedFlash');
+  flash.textContent = '저장되었습니다.';
+  setTimeout(() => flash.textContent = '', 2000);
+});
+
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  if(!confirm('모든 응답을 삭제할까요? 이 작업은 되돌릴 수 없습니다.')) return;
+  responses = [];
+  await saveResponses();
+  renderRespList();
+  renderTally();
+});
+
+// ---------- init ----------
+(async function init(){
+  await loadConfig();
+  await loadResponses();
+  renderHeader();
+  renderOptions();
+})();
+</script>
+</body>
+</html>
