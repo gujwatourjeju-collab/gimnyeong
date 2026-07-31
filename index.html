@@ -563,6 +563,9 @@
     const SECONDARY = new Set(GROUPS.flatMap(g => g.slice(1)));
     const GROUP_BY_PRIMARY = Object.fromEntries(GROUPS.map(g => [g[0], g]));
 
+    // 지도에 마커를 표시하지 않는 매장 (예: QR 전용 안내부스)
+    const NO_MAP = new Set(['안내부스']);
+
     let session = JSON.parse(localStorage.getItem('gny_session') || 'null');
     let storesData = [];
     let myStamps = new Set();
@@ -723,7 +726,7 @@
         if (error) { alert('매장 목록을 불러오지 못했어요.'); return; }
         storesData = data.map(s => {
             const pos = POSITIONS[s.name];
-            if (!pos) console.warn(`좌표 매핑 없음: "${s.name}" — POSITIONS에 이름을 추가해주세요.`);
+            if (!pos && !NO_MAP.has(s.name)) console.warn(`좌표 매핑 없음: "${s.name}" — POSITIONS에 이름을 추가해주세요.`);
             return { ...s, ...(pos || { left: '50%', top: '50%' }) };
         });
         document.getElementById('stampTotalNum').innerText = storesData.length;
@@ -740,7 +743,7 @@
         host.appendChild(picker);
 
         storesData.forEach(store => {
-            if (SECONDARY.has(store.name)) return;
+            if (SECONDARY.has(store.name) || NO_MAP.has(store.name)) return;
 
             const trigger = document.createElement('div');
             trigger.className = 'spot-trigger';
@@ -768,7 +771,7 @@
 
     function renderVisitedBadges() {
         storesData.forEach(store => {
-            if (SECONDARY.has(store.name)) return;
+            if (SECONDARY.has(store.name) || NO_MAP.has(store.name)) return;
             const el = document.getElementById('badge-' + store.id);
             if (!el) return;
             if (GROUP_BY_PRIMARY[store.name]) {
